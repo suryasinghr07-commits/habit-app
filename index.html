@@ -501,7 +501,7 @@ function renderHome(){
     $('activeHabitName').textContent=h.name;
     const lbl={1:'Stage 1: Initiation',2:'Stage 2: Stabilization',3:'Stage 3: Automaticity',4:'Stage 4: Identity'};
     const clr={1:'#dc2626',2:'#f59e0b',3:'#059669',4:'#065f46'};
-    $('activeHabitStage').innerHTML=`<span class="pill" style="background:${clr[h.stage]||'#666'}15;color:${clr[h.stage]||'#666'}">${lbl[h.stage]||'?'}</span>`;
+    $('activeHabitStage').innerHTML=`<span class="pill" style="background:#ffffff; color:${clr[h.stage]||'#333'}; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-weight:900; padding:4px 12px;">${lbl[h.stage]||'?'}</span>`;
     const s=calcStats(h,7);
     const pct=s.total?Math.round(s.done/s.total*100):0;
     $('activeHabitProgress').style.width=pct+'%';
