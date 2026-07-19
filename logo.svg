@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#022c22" />
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#a7f3d0" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Premium Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  
+  <!-- Background Ring -->
+  <circle cx="256" cy="230" r="130" fill="none" stroke="#047857" stroke-width="24" />
+  
+  <!-- 95% Progress Ring (Orange/Green theme) -->
+  <circle cx="256" cy="230" r="130" fill="none" stroke="#ea580c" stroke-width="24" stroke-dasharray="816" stroke-dashoffset="41" stroke-linecap="round" transform="rotate(-90 256 230)" />
+  
+  <!-- 95% Text -->
+  <text x="256" y="270" font-family="sans-serif" font-size="96" font-weight="900" fill="url(#textGrad)" text-anchor="middle">95%</text>
+  
+  <!-- Subtext -->
+  <text x="256" y="430" font-family="sans-serif" font-size="28" font-weight="700" fill="#a7f3d0" text-anchor="middle" letter-spacing="2">HABITS</text>
+</svg>
