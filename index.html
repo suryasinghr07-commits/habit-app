@@ -8,6 +8,11 @@
 <meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#065f46">
 <title>🧠 Habit Maturity Tracker</title>
+
+<!-- PWA (Real App) Links -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="logo.svg">
+
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -345,7 +350,6 @@ function signupUser(){
 function logoutUser(){
   if(!isFirebaseReady){ toast('Offline mode — logout nahi ho sakta'); return; }
   auth.signOut().then(function(){ 
-      // नया बदलाव: लॉग आउट होने पर पुराना डेटा स्क्रीन से हटा दें
       localStorage.removeItem('hm3_habits');
       localStorage.removeItem('hm3_current');
       toast('Logged out'); 
@@ -422,7 +426,6 @@ function loadFromFirestore(){
         habits = data.habits || [];
         currentId = data.currentId || null;
         
-        // नया बदलाव: क्लाउड से डेटा आते ही उसे लोकल स्टोरेज में भी अपडेट कर दें
         localStorage.setItem('hm3_habits', JSON.stringify(habits));
         localStorage.setItem('hm3_current', currentId || '');
       }else{
@@ -921,3 +924,4 @@ document.querySelector('.bottom-nav').style.display='none';
 </script>
 </body>
 </html>
+
