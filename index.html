@@ -181,6 +181,8 @@
     <div id="todayForm">
       <div class="card"><div style="font-size:13px;color:var(--muted)">Active Habit</div><div id="tHabitName" style="font-size:18px;font-weight:900">—</div><div id="tHabitCue" style="font-size:13px;color:var(--muted)">—</div></div>
       <div class="card"><h2>1. Kya aaj yeh kiya?</h2><div class="log-btns"><button class="log-btn" onclick="selectPerf(this,'yes')">✅ Haan</button><button class="log-btn" onclick="selectPerf(this,'partial')">⚡ Thoda</button><button class="log-btn" onclick="selectPerf(this,'no')">❌ Nahi</button></div></div>
+      
+      <!-- LOG DETAILS FOR YES / PARTIAL -->
       <div id="logDetails" class="hidden">
         <div class="card">
           <h2>2. Reminder ke bina yaad aaya?</h2><select id="tReminder"><option value="no">Haan, bilkul automatic tha</option><option value="slight">Haan, lekin thoda sochna pada</option><option value="yes">Nahi, reminder/calendar dekhna pada</option></select>
@@ -191,6 +193,18 @@
           <button class="btn" onclick="saveTodayLog()">💾 Aaj Ka Log Save</button>
         </div>
       </div>
+
+      <!-- MISSED LOG DETAILS FOR NO -->
+      <div id="missedLogDetails" class="hidden">
+        <div class="card">
+          <h2>2. Aaj ka context? (Kyun miss hua?)</h2>
+          <select id="tMissedContext"><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option><option value="normal">🟢 Normal busy day / Bhool gaya</option></select>
+          <h2>Notes (optional)</h2>
+          <textarea id="tMissedNotes" placeholder="Kyun miss hua..."></textarea>
+          <button class="btn btn-accent" style="background:var(--danger);" onclick="saveMissedLog()">💾 Save Missed Log (Miss)</button>
+        </div>
+      </div>
+
       <div id="eventFields" class="card hidden">
         <h2>📊 Event Tracking</h2>
         <div class="row"><div><label>Event kitni baar?</label><input type="number" id="eOpportunities" min="0" value="0"></div><div><label>Behavior kitni baar?</label><input type="number" id="eExecutions" min="0" value="0"></div></div>
@@ -224,7 +238,7 @@
       <label>Maintenance Mode ke liye ready?</label><select id="wMaintReady"><option value="no">Nahi, abhi bahut door</option><option value="maybe">Shayad, thoda aur time chahiye</option><option value="yes">Haan, test karna chahata hoon</option></select>
       <button class="btn" onclick="saveWeeklyReview()">💾 Weekly Review Save</button>
     </div>
-    <div id="maintPrompt" class="card hidden" style="border-color:var(--primary);background:var(--primary-light)"><h2>🧪 Maintenance Mode Ready!</h2><p style="font-size:13px;margin:8px 0">Aap 3+ hafte se consistent hain. 2 hafte ke liye reminders band karke test karein?</p><button class="btn" onclick="startMaintenance()">Start Maintenance Test</button></div>
+    <div id="maintPrompt" class="card hidden" style="border-color:var(--primary);background:var(--primary-light)"><h2>🧪 Maintenance Mode Ready!</h2><p style="font-size:13px;margin:8px 0">Aap 3+ hafte se consistent hain. 2 hafte ke liye reminders band karke test karein?</p><button class="btn" onclick="startMaint()">Start Maintenance Test</button></div>
   </div>
 </div>
 
@@ -257,15 +271,23 @@
 
 <!-- SETTINGS -->
 <div id="screen-settings" class="screen hidden">
-  <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">⚙️ Systems</h1><div style="width:32px"></div></div>
+  <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">⚙️ Settings</h1><div style="width:32px"></div></div>
   <div class="card">
     <div style="font-size:13px;color:var(--muted)">Logged in as</div>
     <div id="userEmail" style="font-size:15px;font-weight:700;color:var(--primary)">—</div>
     <button class="btn btn-outline" style="margin-top:10px" onclick="logoutUser()">🚪 Logout</button>
   </div>
+  
+  <!-- MANAGE HABITS (DELETE) SECTION -->
+  <div class="card">
+    <h2>🗑️ Manage Habits</h2>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Yahan se aap kisi bhi habit ko delete kar sakte hain.</p>
+    <div id="settingsHabitList"></div>
+  </div>
+
   <div class="card"><div style="font-size:13px;color:var(--muted)">Active Habit</div><div id="sysHabitName" style="font-size:18px;font-weight:900">—</div></div>
   <div class="card"><h2>🔧 Active Systems</h2><div id="activeSystemsList"></div></div>
-  <div class="card"><h2>🧪 System Test</h2><p style="font-size:12px;color:var(--muted);margin-bottom:10px">30 din ke baad ek system hatake dekho. Kya habit survive karti hai?</p><div id="testableSystems"></div></div>
+  
   <div class="card">
     <h2>⚠️ Danger Zone</h2>
     <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Yeh sab kuch delete kar dega — habits, logs, reviews, systems. Wapas nahi aa sakta.</p>
@@ -292,7 +314,7 @@
   <button class="nav-btn active" onclick="go('home')"><span class="icon">🏠</span>Home</button>
   <button class="nav-btn" onclick="go('today')"><span class="icon">✅</span>Check-In</button>
   <button class="nav-btn" onclick="go('weekly')"><span class="icon">📅</span>Review</button>
-  <button class="nav-btn" onclick="go('settings')"><span class="icon">⚙️</span>Systems</button>
+  <button class="nav-btn" onclick="go('settings')"><span class="icon">⚙️</span>Settings</button>
 </div>
 
 <script>
@@ -311,10 +333,8 @@ const firebaseConfig = {
   appId: "1:985225384755:web:7755a3ffcf2795ba7c6446"
 };
 
-// Check if Firebase config is still placeholder
 const isFirebaseReady = firebaseConfig.apiKey !== 'YOUR_API_KEY_HERE';
 
-// Initialize Firebase only if configured
 try{
   if(isFirebaseReady && typeof firebase !== 'undefined'){
     firebase.initializeApp(firebaseConfig);
@@ -376,7 +396,6 @@ function skipLogin(){
   toast('Offline mode — data phone pe save hoga');
 }
 
-// Show setup message if Firebase not ready
 document.addEventListener('DOMContentLoaded', function(){
   if(!isFirebaseReady){
     var msg = $('firebaseSetupMsg');
@@ -387,7 +406,6 @@ document.addEventListener('DOMContentLoaded', function(){
 // ===== STATE =====
 let habits=[], currentId=null, todayPerf=null, selStage=null;
 
-// Auth state listener (only if Firebase ready)
 if(isFirebaseReady && auth){
   auth.onAuthStateChanged(function(user){
     currentUser = user;
@@ -403,7 +421,6 @@ if(isFirebaseReady && auth){
     }
   });
 }else{
-  // NO FIREBASE — skip login, go straight to app with localStorage
   document.addEventListener('DOMContentLoaded', function(){
     $('screen-login').classList.add('hidden');
     $('screen-home').classList.remove('hidden');
@@ -425,7 +442,6 @@ function loadFromFirestore(){
         var data = doc.data();
         habits = data.habits || [];
         currentId = data.currentId || null;
-        
         localStorage.setItem('hm3_habits', JSON.stringify(habits));
         localStorage.setItem('hm3_current', currentId || '');
       }else{
@@ -518,146 +534,40 @@ function renderHome(){
 }
 function switchH(id){currentId=id;saveData();go('home');toast('Switched');}
 
+function deleteHabit(id){
+  if(confirm('Kya aap sach mein is habit ko hamesha ke liye delete karna chahte hain?')){
+    habits = habits.filter(h => h.id !== id);
+    if(currentId === id){
+      currentId = habits.length ? habits[0].id : null;
+    }
+    saveData();
+    renderSettings(); // Refresh list
+    toast('🗑️ Habit deleted successfully');
+  }
+}
+
 // ===== SETUP =====
-// Smart context-aware systems engine
 function getSmartSystems(name, cue, type){
   const n=(name||'').toLowerCase();
   const c=(cue||'').toLowerCase();
   const combined=n+' '+c;
   let systems=[];
-
-  // WATER / HYDRATION
   if(combined.includes('paani')||combined.includes('pani')||combined.includes('water')||combined.includes('hydrat')){
     systems.push('Bedside glass + bottle raat ko bhar ke rakho');
     systems.push('Brush ke baad basin pe glass rakhna');
     systems.push('Fridge mein paani sabse aage rakhna');
-    systems.push('Phone wallpaper: "Pehle paani"');
-    systems.push('Alarm lagao har 2 ghante mein paani ka');
-  }
-
-  // RUNNING / JOGGING / EXERCISE
-  else if(combined.includes('running')||combined.includes('jogging')||combined.includes('dodna')||combined.includes('run')){
+  }else if(combined.includes('running')||combined.includes('jogging')||combined.includes('dodna')||combined.includes('run')){
     systems.push('Raat ko shoes + socks bedside rakho');
     systems.push('Running clothes pehle se taiyaar rakho');
-    systems.push('Alarm 10 min pehle lagao (warmup time)');
-    systems.push('Running buddy / group join karo');
-    systems.push('Playlist taiyaar rakho, headphones charge rakho');
-    systems.push('Track app (Strava/NIKE) home screen pe');
-  }
-
-  // GYM / WORKOUT
-  else if(combined.includes('gym')||combined.includes('workout')||combined.includes('exercise')||combined.includes('weights')||combined.includes('yoga')){
-    systems.push('Gym bag raat ko taiyaar rakho');
-    systems.push('Workout clothes alag drawer mein rakho');
-    systems.push('Pre-workout snack fridge mein label karo');
-    systems.push('Gym partner banao — accountability');
-    systems.push('Rest day calendar mein mark karo');
-  }
-
-  // READING / STUDY / PADHAI
-  else if(combined.includes('padhai')||combined.includes('padhna')||combined.includes('reading')||combined.includes('book')||combined.includes('study')||combined.includes('likhna')){
+  }else if(combined.includes('padhai')||combined.includes('padhna')||combined.includes('reading')||combined.includes('book')||combined.includes('study')){
     systems.push('Book / notebook bedside table pe rakho');
     systems.push('Phone doosre room mein rakho padhne se pehle');
-    systems.push('Same corner / chair har roz use karo');
     systems.push('Pomodoro timer (25 min) set karo');
-    systems.push('Target pages sticky note pe likho');
+  }else{
+    systems.push('If-Then plan likho');
+    systems.push('Calendar pe daily tick');
+    systems.push('Chhota shuru karo');
   }
-
-  // MEDITATION / DHYAAN
-  else if(combined.includes('meditat')||combined.includes('dhyaan')||combined.includes('mindful')){
-    systems.push('Same corner / cushion har roz wahi');
-    systems.push('Phone airplane mode pe rakho');
-    systems.push('App (Headspace/Insight) home screen pe');
-    systems.push('5 min se shuru karo, badhao dhire dhire');
-  }
-
-  // SLEEP / SONa
-  else if(combined.includes('sleep')||combined.includes('sone')||combined.includes('sona')||combined.includes('neend')){
-    systems.push('Same time har roz — alarm bhi weekend pe');
-    systems.push('Phone charger bedroom ke bahar');
-    systems.push('Lights dim karo 1 ghante pehle');
-    systems.push('Caffeine dopahar ke baad band');
-    systems.push('Room thanda rakho (fan/AC)');
-  }
-
-  // WAKE UP EARLY
-  else if(combined.includes('wake')||combined.includes('uthna')||combined.includes('subah')||combined.includes('early')){
-    systems.push('Alarm across the room rakho');
-    systems.push('Paani ka glass bedside rakho (uthke pee)');
-    systems.push('Lights automatic timer pe lagao');
-    systems.push('Phone charging bathroom / kitchen mein');
-  }
-
-  // BRUSH / DENTAL
-  else if(combined.includes('brush')||combined.includes('daant')||combined.includes('floss')){
-    systems.push('Brush bathroom mirror pe eye-level rakho');
-    systems.push('Floss box brush ke saath rakho');
-    systems.push('2 min timer app ya sand timer');
-  }
-
-  // JOURNALING / WRITING
-  else if(combined.includes('journal')||combined.includes('diary')||combined.includes('gratitude')||combined.includes('shukr')){
-    systems.push('Notebook + pen bedside rakho');
-    systems.push('Prompts pehle se likh lo (3 cheezein)');
-    systems.push('Same time roj — brush ke baad ya sone se pehle');
-  }
-
-  // DIET / KHANA / EATING
-  else if(combined.includes('khana')||combined.includes('diet')||combined.includes('eating')||combined.includes('food')||combined.includes('vegetable')||combined.includes('fruit')){
-    systems.push('Sunday ko meal prep karo');
-    systems.push('Healthy snacks eye-level fridge mein');
-    systems.push('Junk food ghar mein mat lao');
-    systems.push('Plate size chhoti use karo');
-    systems.push('Phone band khana khaate waqt');
-  }
-
-  // SAVING MONEY / FINANCE
-  else if(combined.includes('paisa')||combined.includes('money')||combined.includes('save')||combined.includes('invest')||combined.includes('budget')||combined.includes('kharcha')){
-    systems.push('Auto-transfer salary day pe');
-    systems.push('Budget app home screen pe');
-    systems.push('72-hour rule: socho 3 din khareedne se pehle');
-    systems.push('Cash envelope system try karo');
-  }
-
-  // PHONE / DIGITAL DETOX
-  else if(combined.includes('phone')||combined.includes('instagram')||combined.includes('social')||combined.includes('scroll')||combined.includes('screen')){
-    systems.push('Grayscale mode on rakho');
-    systems.push('Distracting apps 2nd page ya folder mein');
-    systems.push('Screen time limit set karo');
-    systems.push('Phone charging doosre room mein');
-    systems.push('App blockers use karo (Freedom/StayFocusd)');
-  }
-
-  // WALKING / CHALNA
-  else if(combined.includes('walk')||combined.includes('chalna')||combined.includes('tehalna')){
-    systems.push('Shoes darwaje pe rakho');
-    systems.push('Podcast / audiobook taiyaar rakho');
-    systems.push('Walk ke baad hi chai / coffee');
-    systems.push('Step counter app home screen pe');
-  }
-
-  // CREATIVE / ART / MUSIC
-  else if(combined.includes('paint')||combined.includes('draw')||combined.includes('music')||combined.includes('guitar')||combined.includes('art')||combined.includes('creative')){
-    systems.push('Tools taiyaar rakho — same jagah');
-    systems.push('Sirf 2 minute rule se shuru karo');
-    systems.push('Inspiration board / Pinterest ready rakho');
-  }
-
-  // If no specific match, fall back to type-based generic systems
-  if(systems.length===0){
-    const generic={
-      health:['Bedside reminder sticky note','Phone wallpaper reminder','Fridge mein healthy aage','Alarm for health activity'],
-      digital:['App home screen se hatao','Screen time limit','Grayscale mode','Phone bedroom se bahar'],
-      social:['Calendar mein time block','Sticky note on mirror','Accountability partner text karo'],
-      financial:['Auto-transfer setup','Budget app home screen','Cash envelope','72-hour rule'],
-      creative:['Sirf 2 minute rule','Same time same place','Tools taiyaar rakho','Inspiration folder'],
-      work:['Calendar time block','Phone airplane mode','Desk pe visual cue','Pomodoro timer'],
-      sleep:['Same wake time alarm','Phone bedroom se hatao','Dim lights 1hr pehle','Caffeine cutoff'],
-      other:['If-Then plan likho','Calendar pe daily tick','Chhota shuru karo','Accountability partner']
-    };
-    systems=generic[type]||generic.other;
-  }
-
   return systems;
 }
 
@@ -666,17 +576,10 @@ function calculatePrediction(){
     const c=$('sComplexity').value,t=$('sTime').value,f=$('sFreq').value,r=$('sReplacement').value,tp=$('sType').value;
     let mn=18,lk=45,mx=90;
     if(c==='simple'){mn=14;lk=30;mx=55;}else if(c==='moderate'){mn=25;lk=55;mx=100;}else{mn=45;lk=90;mx=180;}
-    if(t==='evening'||t==='night'){lk=Math.round(lk*1.25);mx=Math.round(mx*1.2);}
-    if(f!=='daily'){lk=Math.round(lk*1.4);mx=Math.round(mx*1.3);}
-    if(r==='yes'){lk=Math.round(lk*1.5);mx=Math.round(mx*1.4);}
-    if(tp==='digital'){mn=Math.max(3,Math.round(mn*0.3));lk=Math.round(lk*0.5);mx=Math.round(mx*0.6);}
-    mn=Math.max(4,Math.min(mn,lk-5));mx=Math.min(335,Math.max(mx,lk+20));
     $('pMin').textContent=mn+'d';$('pLikely').textContent=lk+'d';$('pMax').textContent=mx+'d';$('pWeeks').textContent=Math.round(lk/7)+'w';
-    
-    // Smart context-aware systems
     $('systemsCard').style.display='block';
     const sys=getSmartSystems($('sName').value,$('sCue').value,tp);
-    $('systemsList').innerHTML=sys.length?sys.map((s,i)=>`<div class="sys-item"><input type="checkbox" id="ss_${i}" checked style="width:18px;height:18px;flex-shrink:0"><div style="flex:1"><div style="font-weight:700;font-size:13px">${s}</div></div></div>`).join(''):'<div style="color:var(--muted);padding:10px">Koi suggestion nahi.</div>';
+    $('systemsList').innerHTML=sys.length?sys.map((s,i)=>`<div class="sys-item"><input type="checkbox" id="ss_${i}" checked style="width:18px;height:18px;flex-shrink:0"><div style="flex:1"><div style="font-weight:700;font-size:13px">${s}</div></div></div>`).join(''):'';
     $('systemsCard').scrollIntoView({behavior:'smooth',block:'nearest'});
   }catch(e){alert('Prediction error: '+e.message);}
 }
@@ -685,12 +588,10 @@ function checkHabitLimits(complexity){
   const microCount = habits.filter(function(h){ return h.complexity==='simple' || h.complexity==='moderate'; }).length;
   const complexCount = habits.filter(function(h){ return h.complexity==='complex'; }).length;
   if((complexity==='simple' || complexity==='moderate') && microCount >= 5){
-    toast('❌ Micro habits ka limit 5 hai. Pehle koi complete karo ya delete karo.');
-    return false;
+    toast('❌ Micro habits ka limit 5 hai.'); return false;
   }
   if(complexity==='complex' && complexCount >= 3){
-    toast('❌ Complex habits ka limit 3 hai. Pehle koi complete karo ya delete karo.');
-    return false;
+    toast('❌ Complex habits ka limit 3 hai.'); return false;
   }
   return true;
 }
@@ -700,7 +601,6 @@ function saveNewHabit(){
     const name=$('sName').value.trim();
     if(!name){toast('Naam likhein');return;}
     const complexity=$('sComplexity').value;
-    // Habit limit check
     if(!checkHabitLimits(complexity)){ return; }
     const h={id:genId(),name:name,type:$('sType').value,complexity:complexity,cue:$('sCue').value,time:$('sTime').value,freq:$('sFreq').value,replacement:$('sReplacement').value,created:todayStr(),stage:1,logs:[],systems:[],maint:{active:false,start:null,logs:[]},ready:false};
     document.querySelectorAll('#systemsList input:checked').forEach(cb=>{
@@ -708,8 +608,7 @@ function saveNewHabit(){
       h.systems.push({name:txt,active:true,added:todayStr()});
     });
     habits.push(h);currentId=h.id;saveData();
-    // Clear
-    $('sName').value='';$('sCue').value='';$('pMin').textContent='—';$('pLikely').textContent='—';$('pMax').textContent='—';$('pWeeks').textContent='—';$('systemsCard').style.display='none';
+    $('sName').value='';$('sCue').value='';$('systemsCard').style.display='none';
     toast('✅ Saved!');go('home');
   }catch(e){alert('Save error: '+e.message);}
 }
@@ -723,11 +622,28 @@ function renderToday(){
   if(tl){$('todayLoggedOverlay').classList.remove('hidden');$('todayForm').classList.add('hidden');}
   else{$('todayLoggedOverlay').classList.add('hidden');$('todayForm').classList.remove('hidden');}
   $('tHabitName').textContent=h.name;$('tHabitCue').textContent=h.cue||'No cue';
-  todayPerf=null;document.querySelectorAll('#screen-today .log-btn').forEach(b=>b.classList.remove('selected'));$('logDetails').classList.add('hidden');
+  todayPerf=null;
+  document.querySelectorAll('#screen-today .log-btn').forEach(b=>b.classList.remove('selected'));
+  $('logDetails').classList.add('hidden');
+  $('missedLogDetails').classList.add('hidden');
   if(h.freq==='event')$('eventFields').classList.remove('hidden');else $('eventFields').classList.add('hidden');
 }
-function selectPerf(btn,p){document.querySelectorAll('#screen-today .log-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');todayPerf=p;$('logDetails').classList.remove('hidden');}
+
+function selectPerf(btn,p){
+  document.querySelectorAll('#screen-today .log-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  todayPerf=p;
+  if(p === 'no'){
+    $('logDetails').classList.add('hidden');
+    $('missedLogDetails').classList.remove('hidden');
+  } else {
+    $('logDetails').classList.remove('hidden');
+    $('missedLogDetails').classList.add('hidden');
+  }
+}
+
 function editTodayLog(){$('todayLoggedOverlay').classList.add('hidden');$('todayForm').classList.remove('hidden');}
+
 function saveTodayLog(){
   try{
     const h=getActive();if(!h)return;if(!todayPerf){toast('Pehle select karein');return;}
@@ -735,9 +651,20 @@ function saveTodayLog(){
     if(h.freq==='event'){log.opp=parseInt($('eOpportunities').value)||0;log.exec=parseInt($('eExecutions').value)||0;}
     h.logs=h.logs.filter(l=>l.date!==log.date);h.logs.push(log);saveData();
     toast('✅ Saved!');$('todayLoggedOverlay').classList.remove('hidden');$('todayForm').classList.add('hidden');
-    const d=new Date().getDay();if(d===0||d===6)setTimeout(()=>{if(confirm('Weekend! Review karein?'))go('weekly');},400);
   }catch(e){alert('Log error: '+e.message);}
 }
+
+function saveMissedLog(){
+  try{
+    const h=getActive();if(!h)return;
+    const log={date:todayStr(),done:false,partial:false,reminder:false,effort:0,ctx:$('tMissedContext').value,enjoy:1,notes:$('tMissedNotes').value};
+    h.logs=h.logs.filter(l=>l.date!==log.date);h.logs.push(log);saveData();
+    toast('❌ Missed log saved (Consistency updated)');
+    $('todayLoggedOverlay').classList.remove('hidden');
+    $('todayForm').classList.add('hidden');
+  }catch(e){alert('Log error: '+e.message);}
+}
+
 $('eOpportunities').addEventListener('input',calcE);$('eExecutions').addEventListener('input',calcE);
 function calcE(){const o=parseInt($('eOpportunities').value)||0,e=parseInt($('eExecutions').value)||0;$('eRate').textContent=(o?Math.round(Math.min(e,o)/o*100):0)+'%';}
 
@@ -812,14 +739,28 @@ function confirmNext(){const h=getActive();if(h){h.ready=true;saveData();}toast(
 
 // ===== SETTINGS =====
 function renderSettings(){
-  // Show user email
   $('userEmail').textContent = currentUser ? currentUser.email : 'Not logged in';
   const h=getActive();
+  
+  // 1. MANAGE HABITS LIST (NEW)
+  const shList = $('settingsHabitList');
+  if(!habits.length){
+    shList.innerHTML = '<div style="color:var(--muted);font-size:13px">Koi habit nahi.</div>';
+  } else {
+    shList.innerHTML = habits.map(h => `
+      <div class="sys-item" style="align-items:center;">
+        <div style="flex:1;font-weight:700;font-size:13px">${h.name}</div>
+        <button onclick="deleteHabit('${h.id}')" class="btn btn-sm" style="background:var(--danger);padding:6px 12px;font-size:12px;margin:0;">Delete</button>
+      </div>`).join('');
+  }
+
+  // 2. SYSTEMS SETTINGS
   if(!h){$('sysHabitName').textContent='Koi habit nahi';$('activeSystemsList').innerHTML='';$('testableSystems').innerHTML='';}
   else{
     $('sysHabitName').textContent=h.name;
     if(!h.systems||!h.systems.length)$('activeSystemsList').innerHTML='<div style="color:var(--muted);font-size:13px">Koi system nahi.</div>';
     else $('activeSystemsList').innerHTML=h.systems.map((s,i)=>`<div class="sys-item"><input type="checkbox" ${s.active?'checked':''} onchange="toggleSys(${i},this.checked)" style="width:18px;height:18px;flex-shrink:0"><div style="flex:1"><div style="font-weight:700;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--muted)">${fmt(s.added)}</div></div></div>`).join('');
+    
     const old=(h.systems||[]).filter(s=>{if(!s.active)return false;const days=(new Date(todayStr())-new Date(s.added))/86400000;return days>=30;});
     if(!old.length)$('testableSystems').innerHTML='<div style="color:var(--muted);font-size:13px">30 din wait karein.</div>';
     else $('testableSystems').innerHTML=old.map(s=>`<div style="padding:10px;background:#fafaf9;border:1.5px solid var(--border);border-radius:10px;margin:6px 0"><div style="font-weight:700;font-size:13px">${s.name}</div><button class="btn btn-sm btn-outline" style="margin-top:6px" onclick="toast('7 din ke liye hatao, test karo')">🧪 Test</button></div>`).join('');
@@ -828,79 +769,43 @@ function renderSettings(){
 }
 function toggleSys(i,a){const h=getActive();if(h&&h.systems[i]){h.systems[i].active=a;saveData();toast(a?'ON':'OFF');}}
 
-// Delete all data - checkbox + button approach
 (function(){
   var chk = document.getElementById('chkDelete');
   var btn = document.getElementById('btnFinalDelete');
-
   if(chk && btn){
-    chk.onchange = function(){
-      btn.disabled = !chk.checked;
-      btn.style.opacity = chk.checked ? '1' : '.5';
-    };
-
+    chk.onchange = function(){ btn.disabled = !chk.checked; btn.style.opacity = chk.checked ? '1' : '.5'; };
     btn.onclick = function(){
       if(!chk.checked) return;
-      try{
-        localStorage.removeItem('hm3_habits');
-        localStorage.removeItem('hm3_current');
-        habits=[];
-        currentId=null;
-        chk.checked = false;
-        btn.disabled = true;
-        btn.style.opacity = '.5';
-        toast('Saari data delete ho gayi');
-        renderHome();
-        go('home');
-      }catch(e){
-        alert('Delete error: '+e.message);
-      }
+      localStorage.removeItem('hm3_habits'); localStorage.removeItem('hm3_current');
+      habits=[]; currentId=null; chk.checked = false; btn.disabled = true;
+      toast('Saari data delete ho gayi'); renderHome(); go('home');
     };
   }
 })();
 
-// ===== EXPORT / IMPORT / BACKUP =====
 function exportData(){
   try{
-    var data = {habits:habits,currentId:currentId,exportedAt:new Date().toISOString(),version:'v4'};
+    var data = {habits:habits,currentId:currentId,exportedAt:new Date().toISOString(),version:'v5'};
     var blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
     var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'habit-backup-'+new Date().toLocaleDateString('en-CA')+'.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    var a = document.createElement('a'); a.href = url; a.download = 'habit-backup-'+todayStr()+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     toast('Backup downloaded!');
-  }catch(e){
-    alert('Export error: '+e.message);
-  }
+  }catch(e){ alert('Export error: '+e.message); }
 }
 
 function importData(input){
   try{
-    var file = input.files[0];
-    if(!file){return;}
+    var file = input.files[0]; if(!file)return;
     var reader = new FileReader();
     reader.onload = function(e){
-      try{
-        var data = JSON.parse(e.target.result);
-        if(data.habits) habits = data.habits;
-        if(data.currentId) currentId = data.currentId;
-        saveData();
-        toast('Backup restored!');
-        renderHome();
-        go('home');
-      }catch(err){
-        alert('Invalid backup file: '+err.message);
-      }
+      var data = JSON.parse(e.target.result);
+      if(data.habits) habits = data.habits;
+      if(data.currentId) currentId = data.currentId;
+      saveData(); toast('Backup restored!'); renderHome(); go('home');
     };
-    reader.readAsText(file);
-    input.value = '';
-  }catch(e){
-    alert('Import error: '+e.message);
-  }
+    reader.readAsText(file); input.value = '';
+  }catch(e){ alert('Invalid backup file: '+e.message); }
 }
 
 function updateSaveStatus(){
@@ -910,16 +815,10 @@ function updateSaveStatus(){
     var microCount = habits.filter(function(h){ return h.complexity==='simple' || h.complexity==='moderate'; }).length;
     var complexCount = habits.filter(function(h){ return h.complexity==='complex'; }).length;
     var cloudStatus = currentUser ? '<span style="color:var(--primary);">☁️ Cloud sync ON</span>' : '<span style="color:#f59e0b;">📴 Offline mode</span>';
-    el.innerHTML = cloudStatus + '<br>Micro habits: <strong>'+microCount+'/5</strong> | Complex: <strong>'+complexCount+'/3</strong><br><span style="font-size:11px;">Tip: Export JSON backup weekly for extra safety.</span>';
-  }catch(e){
-    el.textContent = 'Status unknown';
-  }
+    el.innerHTML = cloudStatus + '<br>Micro habits: <strong>'+microCount+'/5</strong> | Complex: <strong>'+complexCount+'/3</strong>';
+  }catch(e){ el.textContent = 'Status unknown'; }
 }
 
-// ===== INIT =====
-// If Firebase is ready, auth listener handles screen (see above)
-// If no Firebase, DOMContentLoaded listener handles it (see above)
-// This block is a safety fallback
 document.querySelector('.bottom-nav').style.display='none';
 </script>
 </body>
