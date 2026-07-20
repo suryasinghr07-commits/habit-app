@@ -288,7 +288,6 @@
   <div class="card"><div style="font-size:13px;color:var(--muted)">Active Habit</div><div id="sysHabitName" style="font-size:18px;font-weight:900">—</div></div>
   <div class="card"><h2>🔧 Active Systems</h2><div id="activeSystemsList"></div></div>
   
-  <!-- YAHI BOX MISSING THA JISSE ERROR AAYA! -->
   <div class="card">
     <h2>🧪 System Test</h2>
     <p style="font-size:12px;color:var(--muted);margin-bottom:10px">30 din ke baad ek system hatake dekho. Kya habit survive karti hai?</p>
@@ -419,10 +418,12 @@ if(isFirebaseReady && auth){
     if(user){
       $('screen-login').classList.add('hidden');
       $('screen-home').classList.remove('hidden');
+      document.querySelector('.bottom-nav').style.display='flex'; // <-- THIS FIXES THE BUG
       loadFromFirestore();
     }else{
       document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
       $('screen-login').classList.remove('hidden');
+      document.querySelector('.bottom-nav').style.display='none';
       habits=[]; currentId=null;
       renderHome();
     }
@@ -830,3 +831,4 @@ document.querySelector('.bottom-nav').style.display='none';
 </script>
 </body>
 </html>
+
