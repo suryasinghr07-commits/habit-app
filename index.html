@@ -25,7 +25,7 @@
   .screen{animation:fadeIn .3s ease}
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
   
-  /* New Animations */
+  /* Animations */
   @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
   @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
   .spinner{border:4px solid var(--primary-light);border-top:4px solid var(--primary);border-radius:50%;width:34px;height:34px;animation:spin 1s linear infinite;margin-top:20px}
@@ -405,6 +405,8 @@ function logoutUser(){
   auth.signOut().then(function(){ 
       localStorage.removeItem('hm3_habits');
       localStorage.removeItem('hm3_current');
+      habits=[]; currentId=null;
+      go('login');
       toast('Logged out'); 
   });
 }
@@ -440,50 +442,50 @@ document.addEventListener('DOMContentLoaded', function(){
 // ===== STATE =====
 let habits=[], currentId=null, todayPerf=null, selStage=null;
 
-// OFFLINE-FIRST LOGIC: Load immediately from local storage, then sync with cloud
-if(isFirebaseReady && auth){
-  auth.onAuthStateChanged(function(user){
-    currentUser = user;
-    
-    if(user){
-      $('screen-login').classList.add('hidden');
-      $('screen-home').classList.remove('hidden');
-      document.querySelector('.bottom-nav').style.display='flex';
-      
-      // 1. TURANT LOCAL DATA SE LOAD KARO
-      try{
-        var localH = localStorage.getItem('hm3_habits');
-        if(localH) habits = JSON.parse(localH);
-        currentId = localStorage.getItem('hm3_current')||null;
-      }catch(e){}
-      renderHome();
-      
-      // 2. SPLASH SCREEN JALDI HATA DO (No more 5 sec wait)
-      setTimeout(hideSplashScreen, 300);
-      
-      // 3. BACKGROUND MEIN CLOUD DATA SYNC KARO
-      loadFromFirestore();
-    }else{
-      document.querySelectorAll('.screen').forEach(s=>{ if(s.id!=='screen-loading') s.classList.add('hidden') });
-      $('screen-login').classList.remove('hidden');
-      document.querySelector('.bottom-nav').style.display='none';
-      habits=[]; currentId=null;
-      renderHome();
-      setTimeout(hideSplashScreen, 300);
-    }
-  });
-}else{
-  document.addEventListener('DOMContentLoaded', function(){
+// 1. FAST OFFLINE-FIRST LOAD (Turant UI dikhane ke liye)
+document.addEventListener('DOMContentLoaded', function(){
+  let localData = localStorage.getItem('hm3_habits');
+
+  if(localData){
+    // Agar pehle se phone me data hai, toh bina internet ka intezaar kiye turant load karo
+    try{ habits=JSON.parse(localData); currentId=localStorage.getItem('hm3_current')||null; }catch(e){}
     $('screen-login').classList.add('hidden');
     $('screen-home').classList.remove('hidden');
     document.querySelector('.bottom-nav').style.display='flex';
-    try{
-      habits=JSON.parse(localStorage.getItem('hm3_habits')||'[]');
-      currentId=localStorage.getItem('hm3_current')||null;
-    }catch(e){}
     renderHome();
     updateSaveStatus();
+    setTimeout(hideSplashScreen, 300); // 0.3s mein spinner hatao
+  } else if (!isFirebaseReady) {
+    // Offline use ke liye aur koi data nahi hai
     setTimeout(hideSplashScreen, 300);
+    $('screen-login').classList.remove('hidden');
+  }
+});
+
+// 2. BACKGROUND FIREBASE SYNC (Yeh pichhe shanti se kaam karega)
+if(isFirebaseReady && auth){
+  auth.onAuthStateChanged(function(user){
+    currentUser = user;
+    let localData = localStorage.getItem('hm3_habits');
+
+    if(user){
+      if(!localData){
+         // Naya login hua hai ya phone me data nahi tha, tab Home dikhao
+         $('screen-login').classList.add('hidden');
+         $('screen-home').classList.remove('hidden');
+         document.querySelector('.bottom-nav').style.display='flex';
+         setTimeout(hideSplashScreen, 300);
+      }
+      loadFromFirestore(); // Chupchap pichhe sync karo
+    }else{
+       if(!localData){
+         // Naya user hai, koi data nahi hai, toh Login screen dikhao
+         $('screen-login').classList.remove('hidden');
+         document.querySelectorAll('.screen').forEach(s=>{ if(s.id!=='screen-loading' && s.id!=='screen-login') s.classList.add('hidden') });
+         document.querySelector('.bottom-nav').style.display='none';
+         setTimeout(hideSplashScreen, 300);
+       }
+    }
   });
 }
 
