@@ -31,6 +31,9 @@
   .spinner{border:4px solid var(--primary-light);border-top:4px solid var(--primary);border-radius:50%;width:34px;height:34px;animation:spin 1s linear infinite;margin-top:20px}
   #screen-loading{transition:opacity 0.4s ease}
   
+  /* Locked Sections Styling */
+  .locked-section { opacity: 0.4; pointer-events: none; filter: grayscale(100%); transition: 0.3s ease; }
+  
   .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
   .topbar h1{font-size:20px;color:var(--primary)}
   .topbar .sub{font-size:12px;color:var(--muted)}
@@ -108,7 +111,7 @@
     <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Apna data cloud pe safe rakho. Ek email se multiple devices pe sync.</p>
     <div id="firebaseSetupMsg" class="warn-box" style="display:none;margin-bottom:14px;text-align:left">
       <div style="font-weight:700">⚠️ Firebase Setup Pending</div>
-      <div style="font-size:12px;margin-top:4px">Cloud sync ke liye Firebase setup karna padega. Guide: <strong>FIREBASE_SETUP_GUIDE.md</strong></div>
+      <div style="font-size:12px;margin-top:4px">Cloud sync ke liye Firebase setup karna padega.</div>
       <button class="btn btn-sm btn-outline" style="margin-top:8px" onclick="skipLogin()">▶️ Skip & Use Offline</button>
     </div>
     <label>Email</label>
@@ -118,11 +121,6 @@
     <button class="btn" onclick="loginUser()">🔑 Login</button>
     <button class="btn btn-outline" style="margin-top:8px" onclick="signupUser()">🆕 Sign Up</button>
     <div id="loginError" style="color:#dc2626;font-size:13px;margin-top:10px;display:none"></div>
-    <div class="tip-box" style="margin-top:14px;text-align:left">
-      <div style="font-weight:700;margin-bottom:4px">📋 Habit Limits:</div>
-      <div style="font-size:12px">• Micro (Simple/Moderate): max <strong>5</strong></div>
-      <div style="font-size:12px">• Complex: max <strong>3</strong></div>
-    </div>
   </div>
 </div>
 
@@ -188,46 +186,11 @@
   <button class="btn btn-accent" onclick="saveNewHabit()">💾 Habit Save Karo</button>
 </div>
 
-<!-- TODAY -->
+<!-- TODAY (DYNAMIC CHECK-IN) -->
 <div id="screen-today" class="screen hidden">
   <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">✅ Check-In</h1><div style="width:32px"></div></div>
   <div id="todayNoHabit" class="card hidden"><div class="empty-state"><div style="font-size:48px">📝</div><div>Koi active habit nahi.</div><button class="btn" style="margin-top:10px" onclick="go('setup')">➕ Nayi Habit</button></div></div>
-  <div id="todayContent">
-    <div id="todayLoggedOverlay" class="card hidden"><div class="tip-box" style="text-align:center"><div style="font-size:24px">✅</div><div style="font-weight:800">Aaj ka log already save!</div><button class="btn btn-outline" style="margin-top:10px" onclick="editTodayLog()">✏️ Edit</button></div></div>
-    <div id="todayForm">
-      <div class="card"><div style="font-size:13px;color:var(--muted)">Active Habit</div><div id="tHabitName" style="font-size:18px;font-weight:900">—</div><div id="tHabitCue" style="font-size:13px;color:var(--muted)">—</div></div>
-      <div class="card"><h2>1. Kya aaj yeh kiya?</h2><div class="log-btns"><button class="log-btn" onclick="selectPerf(this,'yes')">✅ Haan</button><button class="log-btn" onclick="selectPerf(this,'partial')">⚡ Thoda</button><button class="log-btn" onclick="selectPerf(this,'no')">❌ Nahi</button></div></div>
-      
-      <!-- LOG DETAILS FOR YES / PARTIAL -->
-      <div id="logDetails" class="hidden">
-        <div class="card">
-          <h2>2. Reminder ke bina yaad aaya?</h2><select id="tReminder"><option value="no">Haan, bilkul automatic tha</option><option value="slight">Haan, lekin thoda sochna pada</option><option value="yes">Nahi, reminder/calendar dekhna pada</option></select>
-          <h2>3. Effort level (1 = bahut easy, 10 = bahut mushkil)</h2><input type="range" id="tEffort" min="1" max="10" value="5" style="width:100%" oninput="$('effortVal').textContent=this.value"><div id="effortVal" style="text-align:center;font-weight:900;color:var(--accent);font-size:18px">5</div>
-          <h2>4. Aaj ka context?</h2><select id="tContext"><option value="normal">🟢 Normal routine day</option><option value="weekend">🟡 Weekend / holiday</option><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option></select>
-          <h2>5. Karne ke baad kaisa laga?</h2><select id="tEnjoy"><option value="5">😊 Bahut achha / energized</option><option value="4">🙂 Achha laga</option><option value="3">😐 Theek thak</option><option value="2">😕 Thoda boring / forced</option><option value="1">😞 Acha nahi laga</option></select>
-          <h2>Notes (optional)</h2><textarea id="tNotes" placeholder="Kuch special hua aaj..."></textarea>
-          <button class="btn" onclick="saveTodayLog()">💾 Aaj Ka Log Save</button>
-        </div>
-      </div>
-
-      <!-- MISSED LOG DETAILS FOR NO -->
-      <div id="missedLogDetails" class="hidden">
-        <div class="card">
-          <h2>2. Aaj ka context? (Kyun miss hua?)</h2>
-          <select id="tMissedContext"><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option><option value="normal">🟢 Normal busy day / Bhool gaya</option></select>
-          <h2>Notes (optional)</h2>
-          <textarea id="tMissedNotes" placeholder="Kyun miss hua..."></textarea>
-          <button class="btn btn-accent" style="background:var(--danger);" onclick="saveMissedLog()">💾 Save Missed Log (Miss)</button>
-        </div>
-      </div>
-
-      <div id="eventFields" class="card hidden">
-        <h2>📊 Event Tracking</h2>
-        <div class="row"><div><label>Event kitni baar?</label><input type="number" id="eOpportunities" min="0" value="0"></div><div><label>Behavior kitni baar?</label><input type="number" id="eExecutions" min="0" value="0"></div></div>
-        <div style="margin-top:10px;padding:10px;background:var(--primary-light);border-radius:10px;text-align:center"><div style="font-size:12px;color:var(--muted)">Success Rate</div><div id="eRate" style="font-size:28px;font-weight:900;color:var(--primary)">0%</div></div>
-      </div>
-    </div>
-  </div>
+  <div id="dynamicFormsContainer"></div>
 </div>
 
 <!-- WEEKLY -->
@@ -235,6 +198,8 @@
   <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">📅 Weekly Review</h1><div style="width:32px"></div></div>
   <div id="weeklyNoHabit" class="card hidden"><div class="empty-state">Pehle habit banaein.</div></div>
   <div id="weeklyContent">
+    
+    <!-- STATS (Hamesha khula rahega) -->
     <div class="card">
       <h2>📊 Stats</h2>
       <div class="stat-grid"><div class="stat-box"><div class="val" id="wConsistency">—</div><div class="lbl">Consistency</div></div><div class="stat-box"><div class="val" id="wReminderFree">—</div><div class="lbl">Reminder-Free</div></div><div class="stat-box"><div class="val" id="wEffort">—</div><div class="lbl">Avg Effort</div></div><div class="stat-box"><div class="val" id="wDisruptions">—</div><div class="lbl">Disruptions</div></div></div>
@@ -242,46 +207,27 @@
       <div style="font-size:13px;font-weight:700;margin-bottom:6px">📈 Trend (4 Weeks)</div>
       <div id="wTrend" style="font-family:monospace;font-size:14px;line-height:1.6"></div>
     </div>
-    <div class="card">
+
+    <!-- LOCK BANNER -->
+    <div id="reviewCountdownBanner" class="info-box" style="text-align:center;font-size:15px;display:none;background:#eff6ff;color:#1e40af;border:1.5px solid #bfdbfe;">
+      <!-- Countdown text -->
+    </div>
+
+    <!-- STAGE ASSESSMENT (Lock ho sakta hai) -->
+    <div class="card" id="stageAssessmentCard">
       <h2>🎯 Stage Assessment</h2>
       <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Aapko lagta hai aap abhi kis stage pe hain? Be honest.</p>
       <div class="stage-grid"><div class="stage-card" onclick="selectStage(1,this)"><div class="num">1</div><div class="ttl">Initiation</div><div class="desc">Reminder chahiye, high effort</div></div><div class="stage-card" onclick="selectStage(2,this)"><div class="num">2</div><div class="ttl">Stabilization</div><div class="desc">Kabhi automatic, still effort</div></div><div class="stage-card" onclick="selectStage(3,this)"><div class="num">3</div><div class="ttl">Automaticity</div><div class="desc">Mostly automatic, cue-driven</div></div><div class="stage-card" onclick="selectStage(4,this)"><div class="num">4</div><div class="ttl">Identity</div><div class="desc">"Main yeh karne wala insaan hoon"</div></div></div>
       <div id="stageSelected" style="margin-top:10px;font-weight:700;color:var(--primary);display:none">Stage <span id="selStageNum">—</span> selected</div>
     </div>
-    <div class="card">
+
+    <!-- REFLECTION (Lock ho sakta hai) -->
+    <div class="card" id="reflectionCard">
       <h2>📝 Reflection</h2>
       <label>Is hafte ka sabse bada challenge?</label><textarea id="wChallenge" placeholder="Kya mushkil aaya..."></textarea>
-      <label>Maintenance Mode ke liye ready?</label><select id="wMaintReady"><option value="no">Nahi, abhi bahut door</option><option value="maybe">Shayad, thoda aur time chahiye</option><option value="yes">Haan, test karna chahata hoon</option></select>
       <button class="btn" onclick="saveWeeklyReview()">💾 Weekly Review Save</button>
     </div>
-    <div id="maintPrompt" class="card hidden" style="border-color:var(--primary);background:var(--primary-light)"><h2>🧪 Maintenance Mode Ready!</h2><p style="font-size:13px;margin:8px 0">Aap 3+ hafte se consistent hain. 2 hafte ke liye reminders band karke test karein?</p><button class="btn" onclick="startMaint()">Start Maintenance Test</button></div>
-  </div>
-</div>
 
-<!-- MAINTENANCE -->
-<div id="screen-maintenance" class="screen hidden">
-  <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">🧪 Maintenance</h1><div style="width:32px"></div></div>
-  <div class="card" style="border-color:var(--primary);background:var(--primary-light)">
-    <h2>📋 Maintenance Mode Rules</h2><ul style="font-size:13px;padding-left:18px;margin:8px 0"><li>Sab reminders OFF</li><li>Active effort mat lagao</li><li>Bas context cue pe depend karo</li><li>Daily log karte raho (bina reminder ke)</li></ul>
-    <div class="bar" style="background:#fff"><div id="maintBar" class="bar-fill" style="width:0%"></div></div>
-    <div style="text-align:center;font-weight:700;margin-top:6px">Day <span id="maintDay">0</span> / 14</div>
-  </div>
-  <div id="maintActive" class="card"><h2>📝 Aaj Ka Log (No Reminder Mode)</h2><p style="font-size:12px;color:var(--muted)">Bina kisi reminder ke — kya aapne automatically kiya?</p><div class="log-btns"><button class="log-btn" onclick="logMaint(true)">✅ Haan, automatic tha</button><button class="log-btn" onclick="logMaint(false)">❌ Nahi, miss ho gaya</button></div></div>
-  <div id="maintResult" class="card hidden"><h2>🎯 Result</h2><div id="maintResultBox"></div></div>
-</div>
-
-<!-- NEXT HABIT -->
-<div id="screen-next" class="screen hidden">
-  <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">🚪 Next Habit</h1><div style="width:32px"></div></div>
-  <div class="card">
-    <h2>✅ Confirm Karo</h2>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Sab 5 tick hone par hi next habit add karein:</p>
-    <div class="toggle"><input type="checkbox" id="g1" onchange="checkGate()"><label for="g1" style="margin:0;font-weight:400">Current habit ne 2 hafte bina reminders ke survive kiya (≥80%)</label></div>
-    <div class="toggle"><input type="checkbox" id="g2" onchange="checkGate()"><label for="g2" style="margin:0;font-weight:400">Yeh habit "automatic" lagti hai most days</label></div>
-    <div class="toggle"><input type="checkbox" id="g3" onchange="checkGate()"><label for="g3" style="margin:0;font-weight:400">Main overwhelmed nahi feel kar raha</label></div>
-    <div class="toggle"><input type="checkbox" id="g4" onchange="checkGate()"><label for="g4" style="margin:0;font-weight:400">Next habit ka clear cue soch liya hai</label></div>
-    <div class="toggle"><input type="checkbox" id="g5" onchange="checkGate()"><label for="g5" style="margin:0;font-weight:400">Next habit simple hai (complex nahi)</label></div>
-    <button class="btn" id="btnAddNext" style="opacity:.5" disabled onclick="confirmNext()">✅ Add New Habit</button>
   </div>
 </div>
 
@@ -293,25 +239,14 @@
     <div id="userEmail" style="font-size:15px;font-weight:700;color:var(--primary)">—</div>
     <button class="btn btn-outline" style="margin-top:10px" onclick="logoutUser()">🚪 Logout</button>
   </div>
-  
   <div class="card">
     <h2>🗑️ Manage Habits</h2>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Yahan se aap kisi bhi habit ko delete kar sakte hain.</p>
     <div id="settingsHabitList"></div>
   </div>
-
   <div class="card"><div style="font-size:13px;color:var(--muted)">Active Habit</div><div id="sysHabitName" style="font-size:18px;font-weight:900">—</div></div>
   <div class="card"><h2>🔧 Active Systems</h2><div id="activeSystemsList"></div></div>
-  
-  <div class="card">
-    <h2>🧪 System Test</h2>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">30 din ke baad ek system hatake dekho. Kya habit survive karti hai?</p>
-    <div id="testableSystems"></div>
-  </div>
-  
   <div class="card">
     <h2>⚠️ Danger Zone</h2>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Yeh sab kuch delete kar dega — habits, logs, reviews, systems. Wapas nahi aa sakta.</p>
     <label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0;cursor:pointer;">
       <input type="checkbox" id="chkDelete" style="width:20px;height:20px;flex-shrink:0;margin-top:2px;">
       <span style="font-size:13px;font-weight:400;color:var(--text);">Main samajhta hoon ki saari data permanently delete ho jayegi</span>
@@ -320,7 +255,6 @@
   </div>
   <div class="card">
     <h2>💾 Backup & Restore</h2>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Phone storage unreliable ho sakta hai. Apna data export karke rakho.</p>
     <button class="btn btn-outline" onclick="exportData()">📤 Export Data (JSON)</button>
     <div style="margin-top:10px;">
       <label style="font-size:12px;color:var(--muted);">Import JSON:</label>
@@ -339,10 +273,8 @@
 </div>
 
 <script>
-// Global error catcher for mobile debugging
-window.onerror = function(msg, url, line){
-  alert('JS Error: ' + msg + ' (line ' + line + ')');
-};
+// ===== ERROR CATCHER =====
+window.onerror = function(msg, url, line){ alert('JS Error: ' + msg + ' (line ' + line + ')'); };
 
 // ===== FIREBASE CONFIG =====
 const firebaseConfig = {
@@ -353,137 +285,72 @@ const firebaseConfig = {
   messagingSenderId: "985225384755",
   appId: "1:985225384755:web:7755a3ffcf2795ba7c6446"
 };
-
 const isFirebaseReady = firebaseConfig.apiKey !== 'YOUR_API_KEY_HERE';
-
-try{
-  if(isFirebaseReady && typeof firebase !== 'undefined'){
-    firebase.initializeApp(firebaseConfig);
-  }
-}catch(e){ console.log('Firebase init:', e.message); }
+try{ if(isFirebaseReady && typeof firebase !== 'undefined'){ firebase.initializeApp(firebaseConfig); } }catch(e){}
 
 const auth = isFirebaseReady && typeof firebase !== 'undefined' ? firebase.auth() : null;
 const db = isFirebaseReady && typeof firebase !== 'undefined' ? firebase.firestore() : null;
 let currentUser = null;
 
-// Hides Splash Screen Smoothly
 function hideSplashScreen(){
   var loader = document.getElementById('screen-loading');
   if(loader && !loader.classList.contains('hidden')){
     loader.style.opacity = '0';
-    setTimeout(function(){
-      loader.classList.add('hidden');
-      loader.style.display = 'none';
-    }, 400); // 0.4s fade-out time
+    setTimeout(function(){ loader.classList.add('hidden'); loader.style.display = 'none'; }, 400);
   }
 }
 
-// ===== AUTH FUNCTIONS =====
+// ===== AUTH & LOAD =====
 function loginUser(){
-  if(!isFirebaseReady){ showLoginError('Firebase setup nahi hua.'); return; }
-  var email = $('loginEmail').value.trim();
-  var pass = $('loginPassword').value;
-  if(!email || !pass){ showLoginError('Email aur password dono likhein'); return; }
-  auth.signInWithEmailAndPassword(email, pass)
-    .then(function(){ $('loginError').style.display='none'; })
-    .catch(function(e){ showLoginError(e.message); });
+  var e = $('loginEmail').value.trim(), p = $('loginPassword').value;
+  if(!e || !p) return;
+  auth.signInWithEmailAndPassword(e, p).then(()=>$('loginError').style.display='none').catch(e=>showLoginError(e.message));
 }
-
 function signupUser(){
-  if(!isFirebaseReady){ showLoginError('Firebase setup nahi hua.'); return; }
-  var email = $('loginEmail').value.trim();
-  var pass = $('loginPassword').value;
-  if(!email || !pass){ showLoginError('Email aur password dono likhein'); return; }
-  if(pass.length < 6){ showLoginError('Password kam se kam 6 characters ka hona chahiye'); return; }
-  auth.createUserWithEmailAndPassword(email, pass)
-    .then(function(){ showLoginError('Account bana diya! Ab login karein.'); $('loginError').style.color='var(--primary)'; })
-    .catch(function(e){ showLoginError(e.message); $('loginError').style.color='#dc2626'; });
+  var e = $('loginEmail').value.trim(), p = $('loginPassword').value;
+  if(!e || !p || p.length<6) return;
+  auth.createUserWithEmailAndPassword(e, p).then(()=>showLoginError('Account bana diya! Ab login karein.')).catch(e=>showLoginError(e.message));
 }
-
 function logoutUser(){
-  if(!isFirebaseReady){ toast('Offline mode — logout nahi ho sakta'); return; }
-  auth.signOut().then(function(){ 
-      localStorage.removeItem('hm3_habits');
-      localStorage.removeItem('hm3_current');
-      habits=[]; currentId=null;
-      go('login');
-      toast('Logged out'); 
-  });
+  auth.signOut().then(()=>{ localStorage.removeItem('hm3_habits'); localStorage.removeItem('hm3_current'); habits=[]; currentId=null; go('login'); toast('Logged out'); });
 }
-
-function showLoginError(msg){
-  var el = $('loginError');
-  el.textContent = msg;
-  el.style.display = 'block';
-  el.style.color = '#dc2626';
-}
-
+function showLoginError(msg){ var el = $('loginError'); el.textContent = msg; el.style.display = 'block'; }
 function skipLogin(){
-  $('screen-login').classList.add('hidden');
-  $('screen-home').classList.remove('hidden');
-  document.querySelector('.bottom-nav').style.display='flex';
-  try{
-    habits=JSON.parse(localStorage.getItem('hm3_habits')||'[]');
-    currentId=localStorage.getItem('hm3_current')||null;
-  }catch(e){}
-  renderHome();
-  updateSaveStatus();
-  hideSplashScreen();
-  toast('Offline mode — data phone pe save hoga');
+  $('screen-login').classList.add('hidden'); $('screen-home').classList.remove('hidden'); document.querySelector('.bottom-nav').style.display='flex';
+  try{ habits=JSON.parse(localStorage.getItem('hm3_habits')||'[]'); currentId=localStorage.getItem('hm3_current')||null; }catch(e){}
+  renderHome(); updateSaveStatus(); hideSplashScreen(); toast('Offline mode ON');
 }
-
-document.addEventListener('DOMContentLoaded', function(){
-  if(!isFirebaseReady){
-    var msg = $('firebaseSetupMsg');
-    if(msg) msg.style.display = 'block';
-  }
-});
 
 // ===== STATE =====
-let habits=[], currentId=null, todayPerf=null, selStage=null;
+let habits=[], currentId=null;
+window.formState = {}; 
+window.editingToday = false;
 
-// 1. FAST OFFLINE-FIRST LOAD (Turant UI dikhane ke liye)
 document.addEventListener('DOMContentLoaded', function(){
   let localData = localStorage.getItem('hm3_habits');
-
   if(localData){
-    // Agar pehle se phone me data hai, toh bina internet ka intezaar kiye turant load karo
     try{ habits=JSON.parse(localData); currentId=localStorage.getItem('hm3_current')||null; }catch(e){}
-    $('screen-login').classList.add('hidden');
-    $('screen-home').classList.remove('hidden');
-    document.querySelector('.bottom-nav').style.display='flex';
-    renderHome();
-    updateSaveStatus();
-    setTimeout(hideSplashScreen, 300); // 0.3s mein spinner hatao
+    $('screen-login').classList.add('hidden'); $('screen-home').classList.remove('hidden'); document.querySelector('.bottom-nav').style.display='flex';
+    renderHome(); updateSaveStatus(); setTimeout(hideSplashScreen, 300);
   } else if (!isFirebaseReady) {
-    // Offline use ke liye aur koi data nahi hai
-    setTimeout(hideSplashScreen, 300);
-    $('screen-login').classList.remove('hidden');
+    setTimeout(hideSplashScreen, 300); $('screen-login').classList.remove('hidden');
   }
 });
 
-// 2. BACKGROUND FIREBASE SYNC (Yeh pichhe shanti se kaam karega)
 if(isFirebaseReady && auth){
   auth.onAuthStateChanged(function(user){
     currentUser = user;
     let localData = localStorage.getItem('hm3_habits');
-
     if(user){
       if(!localData){
-         // Naya login hua hai ya phone me data nahi tha, tab Home dikhao
-         $('screen-login').classList.add('hidden');
-         $('screen-home').classList.remove('hidden');
-         document.querySelector('.bottom-nav').style.display='flex';
+         $('screen-login').classList.add('hidden'); $('screen-home').classList.remove('hidden'); document.querySelector('.bottom-nav').style.display='flex';
          setTimeout(hideSplashScreen, 300);
       }
-      loadFromFirestore(); // Chupchap pichhe sync karo
+      loadFromFirestore();
     }else{
        if(!localData){
-         // Naya user hai, koi data nahi hai, toh Login screen dikhao
-         $('screen-login').classList.remove('hidden');
-         document.querySelectorAll('.screen').forEach(s=>{ if(s.id!=='screen-loading' && s.id!=='screen-login') s.classList.add('hidden') });
-         document.querySelector('.bottom-nav').style.display='none';
-         setTimeout(hideSplashScreen, 300);
+         $('screen-login').classList.remove('hidden'); document.querySelectorAll('.screen').forEach(s=>{ if(s.id!=='screen-loading' && s.id!=='screen-login') s.classList.add('hidden') });
+         document.querySelector('.bottom-nav').style.display='none'; setTimeout(hideSplashScreen, 300);
        }
     }
   });
@@ -491,22 +358,13 @@ if(isFirebaseReady && auth){
 
 function loadFromFirestore(){
   if(!currentUser || !db) return;
-  db.collection('users').doc(currentUser.uid).get()
-    .then(function(doc){
+  db.collection('users').doc(currentUser.uid).get().then(function(doc){
       if(doc.exists){
-        var data = doc.data();
-        habits = data.habits || [];
-        currentId = data.currentId || null;
-        localStorage.setItem('hm3_habits', JSON.stringify(habits));
-        localStorage.setItem('hm3_current', currentId || '');
-        renderHome(); // Re-render silently with updated cloud data
-      } else if (habits.length > 0) {
-        saveData(); // Push local data to cloud if cloud is empty
-      }
-    })
-    .catch(function(e){ 
-        console.error('Sync error:', e); 
-    });
+        var data = doc.data(); habits = data.habits || []; currentId = data.currentId || null;
+        localStorage.setItem('hm3_habits', JSON.stringify(habits)); localStorage.setItem('hm3_current', currentId || '');
+        renderHome();
+      } else if (habits.length > 0) { saveData(); }
+  }).catch(e => console.error('Sync error:', e));
 }
 
 // ===== UTILS =====
@@ -514,46 +372,32 @@ function $(id){return document.getElementById(id)}
 function toast(msg,ms=2600){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',ms);}
 function saveData(){
   try{
-    localStorage.setItem('hm3_habits',JSON.stringify(habits));
-    localStorage.setItem('hm3_current',currentId||'');
-    updateSaveStatus();
-    if(isFirebaseReady && currentUser && db){
-      db.collection('users').doc(currentUser.uid).set({
-        habits: habits,
-        currentId: currentId || '',
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      },{merge:true})
-      .catch(function(e){ 
-          console.error('Cloud sync failed:', e); 
-      });
-    }
-  }catch(e){alert('Save failed: '+e.message);}
+    localStorage.setItem('hm3_habits',JSON.stringify(habits)); localStorage.setItem('hm3_current',currentId||''); updateSaveStatus();
+    if(isFirebaseReady && currentUser && db){ db.collection('users').doc(currentUser.uid).set({habits: habits, currentId: currentId || '', updatedAt: firebase.firestore.FieldValue.serverTimestamp()},{merge:true}); }
+  }catch(e){}
 }
 function getH(id){return habits.find(h=>h.id===id)}
 function getActive(){return currentId?getH(currentId):null}
 function genId(){return 'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)}
-function todayStr(){return new Date().toLocaleDateString('en-CA')}
-function fmt(d){return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}
+
+function todayStr(){
+  let d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function fmtDateReadable(dStr){
+  let p = dStr.split('-');
+  return new Date(p[0], p[1]-1, p[2]).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+}
 
 // ===== NAV =====
 function go(name){
-  if(name==='login'){
-    document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
-    $('screen-login').classList.remove('hidden');
-    document.querySelector('.bottom-nav').style.display='none';
-    return;
-  }
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   $(`screen-${name}`).classList.remove('hidden');
   document.querySelector('.bottom-nav').style.display='flex';
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   const map={home:0,today:1,weekly:2,settings:3};
   if(map[name]!=null)document.querySelectorAll('.nav-btn')[map[name]].classList.add('active');
-  if(name==='home')renderHome();
-  if(name==='today')renderToday();
-  if(name==='weekly')renderWeekly();
-  if(name==='settings')renderSettings();
-  if(name==='maintenance')renderMaint();
+  if(name==='home')renderHome(); if(name==='today')renderToday(); if(name==='weekly')renderWeekly(); if(name==='settings')renderSettings();
   window.scrollTo(0,0);
 }
 
@@ -561,316 +405,245 @@ function go(name){
 function renderHome(){
   const h=getActive();
   if(!h){
-    $('activeHabitName').textContent='Koi habit nahi';
-    $('activeHabitStage').innerHTML='';
-    $('activeHabitProgress').style.width='0%';
-    $('activeConsistency').textContent='—';
+    $('activeHabitName').textContent='Koi habit nahi'; $('activeHabitStage').innerHTML=''; $('activeHabitProgress').style.width='0%'; $('activeConsistency').textContent='—';
   }else{
     $('activeHabitName').textContent=h.name;
     const lbl={1:'Stage 1: Initiation',2:'Stage 2: Stabilization',3:'Stage 3: Automaticity',4:'Stage 4: Identity'};
     const clr={1:'#dc2626',2:'#f59e0b',3:'#059669',4:'#065f46'};
     $('activeHabitStage').innerHTML=`<span class="pill" style="background:#ffffff; color:${clr[h.stage]||'#333'}; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-weight:900; padding:4px 12px;">${lbl[h.stage]||'?'}</span>`;
-    const s=calcStats(h,7);
-    const pct=s.total?Math.round(s.done/s.total*100):0;
-    $('activeHabitProgress').style.width=pct+'%';
-    $('activeConsistency').textContent=pct+'% (last 7d)';
+    const s=calcStats(h,7); const pct=s.total?Math.round(s.done/s.total*100):0;
+    $('activeHabitProgress').style.width=pct+'%'; $('activeConsistency').textContent=pct+'% (last 7d)';
   }
   const list=$('habitsList');
   if(!habits.length){list.innerHTML='<div class="empty-state"><div style="font-size:48px">🌱</div><div>Pehli habit banaein!</div></div>';return;}
   list.innerHTML=habits.map(h=>{
-    const isA=h.id===currentId;
-    const s=calcStats(h,7);
-    const pct=s.total?Math.round(s.done/s.total*100):0;
+    const isA=h.id===currentId; const s=calcStats(h,7); const pct=s.total?Math.round(s.done/s.total*100):0;
     return `<div class="habit-item" onclick="switchH('${h.id}')" style="${isA?'border-color:var(--primary)':''}"><div style="font-size:28px">${isA?'🔥':'⚪'}</div><div class="info"><div class="name">${h.name}</div><div class="meta">${pct}% last 7d • ${h.logs?.length||0} logs</div></div><div class="stage-badge">S${h.stage||'?'}</div></div>`;
   }).join('');
 }
 function switchH(id){currentId=id;saveData();go('home');toast('Switched');}
-
-function deleteHabit(id){
-  if(confirm('Kya aap sach mein is habit ko hamesha ke liye delete karna chahte hain?')){
-    habits = habits.filter(h => h.id !== id);
-    if(currentId === id){
-      currentId = habits.length ? habits[0].id : null;
-    }
-    saveData();
-    renderSettings(); // Refresh list
-    toast('🗑️ Habit deleted successfully');
-  }
-}
+function deleteHabit(id){ if(confirm('Kya aap sach mein is habit ko delete karna chahte hain?')){ habits = habits.filter(h => h.id !== id); if(currentId === id){ currentId = habits.length ? habits[0].id : null; } saveData(); renderSettings(); toast('🗑️ Deleted'); } }
 
 // ===== SETUP =====
-function getSmartSystems(name, cue, type){
-  const n=(name||'').toLowerCase();
-  const c=(cue||'').toLowerCase();
-  const combined=n+' '+c;
-  let systems=[];
-  if(combined.includes('paani')||combined.includes('pani')||combined.includes('water')||combined.includes('hydrat')){
-    systems.push('Bedside glass + bottle raat ko bhar ke rakho');
-    systems.push('Brush ke baad basin pe glass rakhna');
-    systems.push('Fridge mein paani sabse aage rakhna');
-  }else if(combined.includes('running')||combined.includes('jogging')||combined.includes('dodna')||combined.includes('run')){
-    systems.push('Raat ko shoes + socks bedside rakho');
-    systems.push('Running clothes pehle se taiyaar rakho');
-  }else if(combined.includes('padhai')||combined.includes('padhna')||combined.includes('reading')||combined.includes('book')||combined.includes('study')){
-    systems.push('Book / notebook bedside table pe rakho');
-    systems.push('Phone doosre room mein rakho padhne se pehle');
-    systems.push('Pomodoro timer (25 min) set karo');
-  }else{
-    systems.push('If-Then plan likho');
-    systems.push('Calendar pe daily tick');
-    systems.push('Chhota shuru karo');
-  }
-  return systems;
-}
-
+function getSmartSystems(n,c){return ['Bedside glass / paani aage rakho','Running clothes taiyaar rakho','Phone doosre room mein rakho','Chhota shuru karo'];}
 function calculatePrediction(){
-  try{
-    const c=$('sComplexity').value,t=$('sTime').value,f=$('sFreq').value,r=$('sReplacement').value,tp=$('sType').value;
-    let mn=18,lk=45,mx=90;
-    if(c==='simple'){mn=14;lk=30;mx=55;}else if(c==='moderate'){mn=25;lk=55;mx=100;}else{mn=45;lk=90;mx=180;}
-    $('pMin').textContent=mn+'d';$('pLikely').textContent=lk+'d';$('pMax').textContent=mx+'d';$('pWeeks').textContent=Math.round(lk/7)+'w';
-    $('systemsCard').style.display='block';
-    const sys=getSmartSystems($('sName').value,$('sCue').value,tp);
-    $('systemsList').innerHTML=sys.length?sys.map((s,i)=>`<div class="sys-item"><input type="checkbox" id="ss_${i}" checked style="width:18px;height:18px;flex-shrink:0"><div style="flex:1"><div style="font-weight:700;font-size:13px">${s}</div></div></div>`).join(''):'';
-    $('systemsCard').scrollIntoView({behavior:'smooth',block:'nearest'});
-  }catch(e){alert('Prediction error: '+e.message);}
+  const c=$('sComplexity').value; let mn=18,lk=45,mx=90;
+  if(c==='simple'){mn=14;lk=30;mx=55;}else if(c==='moderate'){mn=25;lk=55;mx=100;}else{mn=45;lk=90;mx=180;}
+  $('pMin').textContent=mn+'d';$('pLikely').textContent=lk+'d';$('pMax').textContent=mx+'d';$('pWeeks').textContent=Math.round(lk/7)+'w';
+  $('systemsCard').style.display='block'; const sys=getSmartSystems();
+  $('systemsList').innerHTML=sys.length?sys.map((s,i)=>`<div class="sys-item"><input type="checkbox" checked style="width:18px;height:18px;"><div style="flex:1;font-weight:700;font-size:13px">${s}</div></div>`).join(''):'';
 }
-
-function checkHabitLimits(complexity){
-  const microCount = habits.filter(function(h){ return h.complexity==='simple' || h.complexity==='moderate'; }).length;
-  const complexCount = habits.filter(function(h){ return h.complexity==='complex'; }).length;
-  if((complexity==='simple' || complexity==='moderate') && microCount >= 5){
-    toast('❌ Micro habits ka limit 5 hai.'); return false;
-  }
-  if(complexity==='complex' && complexCount >= 3){
-    toast('❌ Complex habits ka limit 3 hai.'); return false;
-  }
-  return true;
-}
-
 function saveNewHabit(){
-  try{
-    const name=$('sName').value.trim();
-    if(!name){toast('Naam likhein');return;}
-    const complexity=$('sComplexity').value;
-    if(!checkHabitLimits(complexity)){ return; }
-    const h={id:genId(),name:name,type:$('sType').value,complexity:complexity,cue:$('sCue').value,time:$('sTime').value,freq:$('sFreq').value,replacement:$('sReplacement').value,created:todayStr(),stage:1,logs:[],systems:[],maint:{active:false,start:null,logs:[]},ready:false};
-    document.querySelectorAll('#systemsList input:checked').forEach(cb=>{
-      const txt=cb.closest('.sys-item').querySelector('div div').textContent;
-      h.systems.push({name:txt,active:true,added:todayStr()});
-    });
-    habits.push(h);currentId=h.id;saveData();
-    $('sName').value='';$('sCue').value='';$('systemsCard').style.display='none';
-    toast('✅ Saved!');go('home');
-  }catch(e){alert('Save error: '+e.message);}
+  const name=$('sName').value.trim(); if(!name){toast('Naam likhein');return;}
+  const h={id:genId(),name:name,type:$('sType').value,complexity:$('sComplexity').value,cue:$('sCue').value,created:todayStr(),stage:1,logs:[],systems:[],maint:{active:false,logs:[]},ready:false};
+  habits.push(h);currentId=h.id;saveData(); $('sName').value='';$('systemsCard').style.display='none'; toast('✅ Saved!');go('home');
 }
 
-// ===== TODAY =====
-function renderToday(){
-  const h=getActive();
-  if(!h){$('todayNoHabit').classList.remove('hidden');$('todayContent').classList.add('hidden');return;}
-  $('todayNoHabit').classList.add('hidden');$('todayContent').classList.remove('hidden');
-  const tl=h.logs.find(l=>l.date===todayStr());
-  if(tl){$('todayLoggedOverlay').classList.remove('hidden');$('todayForm').classList.add('hidden');}
-  else{$('todayLoggedOverlay').classList.add('hidden');$('todayForm').classList.remove('hidden');}
-  $('tHabitName').textContent=h.name;$('tHabitCue').textContent=h.cue||'No cue';
-  todayPerf=null;
-  document.querySelectorAll('#screen-today .log-btn').forEach(b=>b.classList.remove('selected'));
-  $('logDetails').classList.add('hidden');
-  $('missedLogDetails').classList.add('hidden');
-  if(h.freq==='event')$('eventFields').classList.remove('hidden');else $('eventFields').classList.add('hidden');
-}
-
-function selectPerf(btn,p){
-  document.querySelectorAll('#screen-today .log-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-  todayPerf=p;
-  if(p === 'no'){
-    $('logDetails').classList.add('hidden');
-    $('missedLogDetails').classList.remove('hidden');
-  } else {
-    $('logDetails').classList.remove('hidden');
-    $('missedLogDetails').classList.add('hidden');
+// ===== 🚀 DYNAMIC CHECK-IN SYSTEM (SAFE DATE PARSING) =====
+function getMissedDates(h) {
+  let missed = []; if (!h.created) return missed;
+  let cP = h.created.split('-'); let curr = new Date(cP[0], cP[1]-1, cP[2]);
+  let tP = todayStr().split('-'); let end = new Date(tP[0], tP[1]-1, tP[2]);
+  curr.setHours(0,0,0,0); end.setHours(0,0,0,0);
+  let safety = 0;
+  while(curr < end && safety < 30) { 
+      let y = curr.getFullYear(); let m = String(curr.getMonth()+1).padStart(2,'0'); let d = String(curr.getDate()).padStart(2,'0');
+      let dStr = `${y}-${m}-${d}`;
+      if(!h.logs.find(l => l.date === dStr)) { missed.push(dStr); }
+      curr.setDate(curr.getDate() + 1); safety++;
   }
+  return missed.slice(-5);
 }
 
-function editTodayLog(){$('todayLoggedOverlay').classList.add('hidden');$('todayForm').classList.remove('hidden');}
+function renderToday(){
+  const h = getActive();
+  if(!h){ $('todayNoHabit').classList.remove('hidden'); $('dynamicFormsContainer').innerHTML=''; return; }
+  $('todayNoHabit').classList.add('hidden');
+  
+  let container = $('dynamicFormsContainer');
+  window.formState = {}; 
+  
+  let html = `<div class="card"><div style="font-size:13px;color:var(--muted)">Active Habit</div><div style="font-size:18px;font-weight:900">${h.name}</div><div style="font-size:13px;color:var(--muted)">${h.cue||'No cue'}</div></div>`;
 
-function saveTodayLog(){
-  try{
-    const h=getActive();if(!h)return;if(!todayPerf){toast('Pehle select karein');return;}
-    const log={date:todayStr(),done:todayPerf==='yes',partial:todayPerf==='partial',reminder:$('tReminder').value==='yes',effort:parseInt($('tEffort').value),ctx:$('tContext').value,enjoy:parseInt($('tEnjoy').value),notes:$('tNotes').value};
-    if(h.freq==='event'){log.opp=parseInt($('eOpportunities').value)||0;log.exec=parseInt($('eExecutions').value)||0;}
-    h.logs=h.logs.filter(l=>l.date!==log.date);h.logs.push(log);saveData();
-    toast('✅ Saved!');$('todayLoggedOverlay').classList.remove('hidden');$('todayForm').classList.add('hidden');
-  }catch(e){alert('Log error: '+e.message);}
+  let missedDates = getMissedDates(h);
+  missedDates.forEach(dateStr => { html += buildFormHTML(dateStr, false, h); });
+
+  let tLog = h.logs.find(l => l.date === todayStr());
+  if(tLog && !window.editingToday){
+    html += `<div class="card" style="background:var(--primary-light);border-color:#a7f3d0;text-align:center">
+               <div style="font-size:24px">✅</div><div style="font-weight:800;margin:6px 0">Aaj ka log save hai!</div>
+               <button class="btn btn-outline btn-sm" onclick="window.editingToday=true; renderToday();">✏️ Edit Today</button>
+             </div>`;
+  } else {
+    html += buildFormHTML(todayStr(), true, h);
+  }
+  container.innerHTML = html;
 }
 
-function saveMissedLog(){
-  try{
-    const h=getActive();if(!h)return;
-    const log={date:todayStr(),done:false,partial:false,reminder:false,effort:0,ctx:$('tMissedContext').value,enjoy:1,notes:$('tMissedNotes').value};
-    h.logs=h.logs.filter(l=>l.date!==log.date);h.logs.push(log);saveData();
-    toast('❌ Missed log saved (Consistency updated)');
-    $('todayLoggedOverlay').classList.remove('hidden');
-    $('todayForm').classList.add('hidden');
-  }catch(e){alert('Log error: '+e.message);}
+function buildFormHTML(dateStr, isToday, h) {
+  let title = isToday ? "1. Kya aaj yeh kiya?" : `<span style="color:var(--danger)">⚠️ You missed on (${fmtDateReadable(dateStr)})</span><br><span style="font-size:14px">1. Kya is din yeh kiya?</span>`;
+  let borderStyle = !isToday ? 'border-left: 4px solid var(--danger);' : '';
+  
+  return `
+  <div class="card" style="${borderStyle}">
+    <h2>${title}</h2>
+    <div class="log-btns">
+      <button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','yes')">✅ Haan</button>
+      <button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','partial')">⚡ Thoda</button>
+      <button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','no')">❌ Nahi</button>
+    </div>
+    <div id="logDetails_${dateStr}" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;">
+      <label>2. Reminder ke bina yaad aaya?</label>
+      <select id="tReminder_${dateStr}"><option value="no">Haan, automatic tha</option><option value="slight">Thoda sochna pada</option><option value="yes">Nahi, reminder dekhna pada</option></select>
+      <label>3. Effort level (1=easy, 10=hard)</label>
+      <input type="range" id="tEffort_${dateStr}" min="1" max="10" value="5" oninput="$('effortVal_${dateStr}').textContent=this.value">
+      <div id="effortVal_${dateStr}" style="text-align:center;font-weight:900;color:var(--accent);font-size:18px">5</div>
+      <label>4. Us din ka context?</label>
+      <select id="tContext_${dateStr}"><option value="normal">🟢 Normal routine day</option><option value="weekend">🟡 Weekend / holiday</option><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option></select>
+      <label>5. Karne ke baad kaisa laga?</label>
+      <select id="tEnjoy_${dateStr}"><option value="5">😊 Bahut achha / energized</option><option value="4">🙂 Achha laga</option><option value="3">😐 Theek thak</option><option value="2">😕 Thoda boring</option><option value="1">😞 Acha nahi laga</option></select>
+      <label>Notes (optional)</label>
+      <textarea id="tNotes_${dateStr}" placeholder="Kuch special hua tha..."></textarea>
+      <button class="btn" style="margin-top:12px" onclick="saveDynamicLog('${dateStr}')">💾 ${isToday?'Aaj ka ':''}Log Save</button>
+    </div>
+    <div id="missedLogDetails_${dateStr}" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;">
+      <label>2. Us din ka context? (Kyun miss hua?)</label>
+      <select id="tMissedContext_${dateStr}"><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option><option value="normal">🟢 Normal busy day / Bhool gaya</option></select>
+      <label>Notes (optional)</label>
+      <textarea id="tMissedNotes_${dateStr}" placeholder="Kyun miss hua..."></textarea>
+      <button class="btn" style="margin-top:12px;background:var(--danger)" onclick="saveDynamicLog('${dateStr}')">💾 Save Missed Log</button>
+    </div>
+  </div>`;
 }
 
-$('eOpportunities').addEventListener('input',calcE);$('eExecutions').addEventListener('input',calcE);
-function calcE(){const o=parseInt($('eOpportunities').value)||0,e=parseInt($('eExecutions').value)||0;$('eRate').textContent=(o?Math.round(Math.min(e,o)/o*100):0)+'%';}
-
-// ===== STATS =====
-function calcStats(h,days=7){
-  const logs=h.logs.slice(-days);
-  return{total:logs.length,done:logs.filter(l=>l.done).length,remFree:logs.filter(l=>!l.reminder).length,effort:logs.length?(logs.reduce((s,l)=>s+(l.effort||5),0)/logs.length).toFixed(1):0,disrupt:logs.filter(l=>l.ctx&&l.ctx!=='normal').length};
+function selectDynamicPerf(btn, dateStr, val){
+  window.formState[dateStr] = val;
+  document.querySelectorAll(`.perf-btn-${dateStr}`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  if(val === 'no'){ $(`logDetails_${dateStr}`).classList.add('hidden'); $(`missedLogDetails_${dateStr}`).classList.remove('hidden'); } 
+  else { $(`logDetails_${dateStr}`).classList.remove('hidden'); $(`missedLogDetails_${dateStr}`).classList.add('hidden'); }
 }
 
-// ===== WEEKLY =====
+function saveDynamicLog(dateStr){
+  const h = getActive(); if(!h) return;
+  let val = window.formState[dateStr];
+  if(!val){ toast('Pehle select karein'); return; }
+
+  let log;
+  if(val === 'no'){
+    log = { date: dateStr, done: false, partial: false, reminder: false, effort: 0, ctx: $(`tMissedContext_${dateStr}`).value, enjoy: 1, notes: $(`tMissedNotes_${dateStr}`).value };
+  } else {
+    log = { date: dateStr, done: val==='yes', partial: val==='partial', reminder: $(`tReminder_${dateStr}`).value==='yes', effort: parseInt($(`tEffort_${dateStr}`).value), ctx: $(`tContext_${dateStr}`).value, enjoy: parseInt($(`tEnjoy_${dateStr}`).value), notes: $(`tNotes_${dateStr}`).value };
+  }
+  
+  h.logs = h.logs.filter(l => l.date !== dateStr);
+  h.logs.push(log);
+  saveData();
+  if(dateStr === todayStr()) window.editingToday = false;
+  toast(`✅ Log saved!`);
+  renderToday(); 
+}
+
+// ===== 🚀 WEEKLY (SMART LOCK FIXED CYCLE) =====
+function calcStats(h,days=7){ const logs=h.logs.slice(-days); return{total:logs.length,done:logs.filter(l=>l.done).length,remFree:logs.filter(l=>!l.reminder).length,effort:logs.length?(logs.reduce((s,l)=>s+(l.effort||5),0)/logs.length).toFixed(1):0,disrupt:logs.filter(l=>l.ctx&&l.ctx!=='normal').length}; }
+
 function renderWeekly(){
-  const h=getActive();
-  if(!h){$('weeklyNoHabit').classList.remove('hidden');$('weeklyContent').classList.add('hidden');return;}
+  const h=getActive(); if(!h){$('weeklyNoHabit').classList.remove('hidden');$('weeklyContent').classList.add('hidden');return;}
   $('weeklyNoHabit').classList.add('hidden');$('weeklyContent').classList.remove('hidden');
-  const s=calcStats(h,7);
-  $('wConsistency').textContent=s.total?Math.round(s.done/s.total*100)+'%':'—';
-  $('wReminderFree').textContent=s.total?Math.round(s.remFree/s.total*100)+'%':'—';
-  $('wEffort').textContent=s.effort;
-  $('wDisruptions').textContent=s.disrupt;
+  
+  const s=calcStats(h,7); $('wConsistency').textContent=s.total?Math.round(s.done/s.total*100)+'%':'—'; $('wReminderFree').textContent=s.total?Math.round(s.remFree/s.total*100)+'%':'—';
+  $('wEffort').textContent=s.effort; $('wDisruptions').textContent=s.disrupt;
   let th='';
   for(let w=4;w>=1;w--){
-    const end=w===1?undefined:-(w-1)*7;
-    const logs=h.logs.slice(-w*7,end);
-    const pct=logs.length?Math.round(logs.filter(l=>l.done).length/logs.length*100):0;
+    const end=w===1?undefined:-(w-1)*7; const logs=h.logs.slice(-w*7,end); const pct=logs.length?Math.round(logs.filter(l=>l.done).length/logs.length*100):0;
     th+=`W-${w}: ${'█'.repeat(Math.round(pct/10))+'░'.repeat(10-Math.round(pct/10))} ${pct}%<br>`;
   }
   $('wTrend').innerHTML=th;
   document.querySelectorAll('.stage-card').forEach(c=>c.classList.remove('active'));
   selStage=null;$('stageSelected').style.display='none';
-  const recent=h.logs.slice(-21);
-  const c=recent.length?recent.filter(l=>l.done).length/recent.length:0;
-  $('maintPrompt').classList.toggle('hidden',!(c>=0.75&&h.stage>=2&&!h.maint.active&&!h.ready));
+
+  let cP = h.created.split('-');
+  let cD = new Date(cP[0], cP[1]-1, cP[2]);
+  let tP = todayStr().split('-');
+  let tD = new Date(tP[0], tP[1]-1, tP[2]);
+  
+  let daysElapsed = Math.floor((tD - cD) / 86400000);
+  if(daysElapsed < 0) daysElapsed = 0;
+  
+  let currentCycle = Math.floor(daysElapsed / 7);
+  let lastReviewedCycle = 0;
+  if(h.history && h.history.length > 0){
+    lastReviewedCycle = Math.max(...h.history.map(r => r.week || 0));
+  }
+  
+  let isLocked = currentCycle <= lastReviewedCycle;
+  let daysLeft = 0;
+  
+  if(isLocked){
+    let daysRequired = (lastReviewedCycle + 1) * 7;
+    daysLeft = daysRequired - daysElapsed;
+  }
+  
+  let assessCard = $('stageAssessmentCard');
+  let reflectCard = $('reflectionCard');
+  let banner = $('reviewCountdownBanner');
+  
+  if(isLocked){
+    assessCard.classList.add('locked-section');
+    reflectCard.classList.add('locked-section');
+    banner.style.display = 'block';
+    banner.innerHTML = `⏳ Next Review: <strong>${daysLeft} Days Left</strong>`;
+  } else {
+    assessCard.classList.remove('locked-section');
+    reflectCard.classList.remove('locked-section');
+    banner.style.display = 'none';
+  }
 }
+
 function selectStage(n,el){selStage=n;document.querySelectorAll('.stage-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');$('selStageNum').textContent=n;$('stageSelected').style.display='block';}
+
 function saveWeeklyReview(){
   try{
     const h=getActive();if(!h)return;
-    if(selStage){h.stage=selStage;const days=Math.floor((new Date(todayStr())-new Date(h.created))/86400000)+1;h.history=h.history||[];h.history.push({week:Math.ceil(days/7),stage:selStage,date:todayStr()});}
+    let cP = h.created.split('-'); let cD = new Date(cP[0], cP[1]-1, cP[2]);
+    let tP = todayStr().split('-'); let tD = new Date(tP[0], tP[1]-1, tP[2]);
+    let daysElapsed = Math.floor((tD - cD) / 86400000);
+    if(daysElapsed < 0) daysElapsed = 0;
+    let currentCycle = Math.floor(daysElapsed / 7);
+
+    if(selStage){
+      h.stage=selStage;
+      h.history=h.history||[];
+      h.history.push({week: currentCycle, stage:selStage, date:todayStr()});
+    }
     saveData();toast('✅ Saved!');go('home');
   }catch(e){alert('Review error: '+e.message);}
 }
 
-// ===== MAINTENANCE =====
-function startMaint(){const h=getActive();if(!h)return;h.maint={active:true,start:todayStr(),logs:[]};saveData();go('maintenance');renderMaint();}
-function renderMaint(){
-  const h=getActive();if(!h){$('maintActive').classList.add('hidden');$('maintResult').classList.remove('hidden');return;}
-  if(!h.maint.active&&h.maint.result){showMaintResult(h);return;}
-  if(!h.maint.active){$('maintActive').classList.add('hidden');$('maintResult').classList.add('hidden');return;}
-  const start=new Date(h.maint.start),now=new Date(todayStr());
-  const diff=Math.floor((now-start)/86400000)+1;
-  $('maintDay').textContent=Math.min(diff,14);
-  $('maintBar').style.width=(Math.min(diff,14)/14*100)+'%';
-  if(diff>14){evalMaint(h);}else{$('maintActive').classList.remove('hidden');$('maintResult').classList.add('hidden');}
-}
-function evalMaint(h){
-  const logs=h.maint.logs,done=logs.filter(l=>l.done).length,rate=logs.length?done/logs.length:0;
-  h.maint.active=false;h.maint.result={rate,at:todayStr()};if(rate>=0.8)h.ready=true;saveData();showMaintResult(h);
-}
-function showMaintResult(h){
-  const r=h.maint.result?.rate||0;
-  let html='';
-  if(r>=0.8)html=`<div class="tip-box"><div style="font-size:24px;font-weight:900">✅ STAGE 3!</div><div>Rate: ${Math.round(r*100)}%</div><button class="btn" style="margin-top:10px" onclick="go('next')">🚪 Next Habit</button></div>`;
-  else if(r>=0.5)html=`<div class="warn-box"><div style="font-size:20px;font-weight:900">⚠️ Stage 2.5</div><div>Rate: ${Math.round(r*100)}% — 2 aur week</div></div>`;
-  else html=`<div class="warn-box"><div style="font-size:20px;font-weight:900">❌ Stage 2</div><div>Rate: ${Math.round(r*100)}% — Wapas focus karein</div></div>`;
-  $('maintActive').classList.add('hidden');$('maintResult').classList.remove('hidden');$('maintResultBox').innerHTML=html;
-}
-function logMaint(done){const h=getActive();if(!h)return;h.maint.logs=h.maint.logs.filter(l=>l.date!==todayStr());h.maint.logs.push({date:todayStr(),done});saveData();toast(done?'✅':'❌');renderMaint();}
-
-// ===== NEXT =====
-function checkGate(){const all=document.querySelectorAll('#screen-next input:checked').length===5;const btn=$('btnAddNext');btn.disabled=!all;btn.style.opacity=all?'1':'.5';}
-function confirmNext(){const h=getActive();if(h){h.ready=true;saveData();}toast('✅ Ready!');go('setup');}
-
 // ===== SETTINGS =====
 function renderSettings(){
   $('userEmail').textContent = currentUser ? currentUser.email : 'Not logged in';
-  const h=getActive();
-  
-  // 1. MANAGE HABITS LIST
   const shList = $('settingsHabitList');
-  if(!habits.length){
-    shList.innerHTML = '<div style="color:var(--muted);font-size:13px">Koi habit nahi.</div>';
-  } else {
-    shList.innerHTML = habits.map(h => `
-      <div class="sys-item" style="align-items:center;">
-        <div style="flex:1;font-weight:700;font-size:13px">${h.name}</div>
-        <button onclick="deleteHabit('${h.id}')" class="btn btn-sm" style="background:var(--danger);padding:6px 12px;font-size:12px;margin:0;">Delete</button>
-      </div>`).join('');
-  }
-
-  // 2. SYSTEMS SETTINGS
-  if(!h){$('sysHabitName').textContent='Koi habit nahi';$('activeSystemsList').innerHTML='';$('testableSystems').innerHTML='';}
-  else{
-    $('sysHabitName').textContent=h.name;
-    if(!h.systems||!h.systems.length)$('activeSystemsList').innerHTML='<div style="color:var(--muted);font-size:13px">Koi system nahi.</div>';
-    else $('activeSystemsList').innerHTML=h.systems.map((s,i)=>`<div class="sys-item"><input type="checkbox" ${s.active?'checked':''} onchange="toggleSys(${i},this.checked)" style="width:18px;height:18px;flex-shrink:0"><div style="flex:1"><div style="font-weight:700;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--muted)">${fmt(s.added)}</div></div></div>`).join('');
-    
-    const old=(h.systems||[]).filter(s=>{if(!s.active)return false;const days=(new Date(todayStr())-new Date(s.added))/86400000;return days>=30;});
-    if(!old.length)$('testableSystems').innerHTML='<div style="color:var(--muted);font-size:13px">30 din wait karein.</div>';
-    else $('testableSystems').innerHTML=old.map(s=>`<div style="padding:10px;background:#fafaf9;border:1.5px solid var(--border);border-radius:10px;margin:6px 0"><div style="font-weight:700;font-size:13px">${s.name}</div><button class="btn btn-sm btn-outline" style="margin-top:6px" onclick="toast('7 din ke liye hatao, test karo')">🧪 Test</button></div>`).join('');
-  }
+  if(!habits.length) shList.innerHTML = '<div style="color:var(--muted);font-size:13px">Koi habit nahi.</div>';
+  else shList.innerHTML = habits.map(h => `<div class="sys-item" style="align-items:center;"><div style="flex:1;font-weight:700;font-size:13px">${h.name}</div><button onclick="deleteHabit('${h.id}')" class="btn btn-sm" style="background:var(--danger);padding:6px 12px;font-size:12px;margin:0;">Delete</button></div>`).join('');
   updateSaveStatus();
 }
-function toggleSys(i,a){const h=getActive();if(h&&h.systems[i]){h.systems[i].active=a;saveData();toast(a?'ON':'OFF');}}
-
-(function(){
-  var chk = document.getElementById('chkDelete');
-  var btn = document.getElementById('btnFinalDelete');
-  if(chk && btn){
-    chk.onchange = function(){ btn.disabled = !chk.checked; btn.style.opacity = chk.checked ? '1' : '.5'; };
-    btn.onclick = function(){
-      if(!chk.checked) return;
-      localStorage.removeItem('hm3_habits'); localStorage.removeItem('hm3_current');
-      habits=[]; currentId=null; chk.checked = false; btn.disabled = true;
-      toast('Saari data delete ho gayi'); renderHome(); go('home');
-    };
-  }
-})();
-
+function updateSaveStatus(){
+  var el = $('lastSavedStatus'); if(!el) return;
+  try{ el.innerHTML = (currentUser ? '<span style="color:var(--primary);">☁️ Cloud sync ON</span>' : '<span style="color:#f59e0b;">📴 Offline mode</span>'); }catch(e){}
+}
 function exportData(){
   try{
-    var data = {habits:habits,currentId:currentId,exportedAt:new Date().toISOString(),version:'v5'};
-    var blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a'); a.href = url; a.download = 'habit-backup-'+todayStr()+'.json';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-    toast('Backup downloaded!');
+    var blob = new Blob([JSON.stringify({habits:habits,currentId:currentId,exportedAt:new Date().toISOString(),version:'v5'},null,2)],{type:'application/json'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'habit-backup-'+todayStr()+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); toast('Backup downloaded!');
   }catch(e){ alert('Export error: '+e.message); }
 }
-
 function importData(input){
-  try{
-    var file = input.files[0]; if(!file)return;
-    var reader = new FileReader();
-    reader.onload = function(e){
-      var data = JSON.parse(e.target.result);
-      if(data.habits) habits = data.habits;
-      if(data.currentId) currentId = data.currentId;
-      saveData(); toast('Backup restored!'); renderHome(); go('home');
-    };
-    reader.readAsText(file); input.value = '';
-  }catch(e){ alert('Invalid backup file: '+e.message); }
+  var reader = new FileReader();
+  reader.onload = function(e){ var data = JSON.parse(e.target.result); if(data.habits) habits = data.habits; if(data.currentId) currentId = data.currentId; saveData(); toast('Restored!'); go('home'); };
+  reader.readAsText(input.files[0]); input.value = '';
 }
-
-function updateSaveStatus(){
-  var el = document.getElementById('lastSavedStatus');
-  if(!el) return;
-  try{
-    var microCount = habits.filter(function(h){ return h.complexity==='simple' || h.complexity==='moderate'; }).length;
-    var complexCount = habits.filter(function(h){ return h.complexity==='complex'; }).length;
-    var cloudStatus = currentUser ? '<span style="color:var(--primary);">☁️ Cloud sync ON</span>' : '<span style="color:#f59e0b;">📴 Offline mode</span>';
-    el.innerHTML = cloudStatus + '<br>Micro habits: <strong>'+microCount+'/5</strong> | Complex: <strong>'+complexCount+'/3</strong>';
-  }catch(e){ el.textContent = 'Status unknown'; }
-}
-
 </script>
 </body>
 </html>
