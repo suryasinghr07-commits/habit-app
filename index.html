@@ -9,7 +9,6 @@
 <meta name="theme-color" content="#065f46">
 <title>🧠 Habit Maturity Tracker</title>
 
-<!-- PWA (Real App) Links -->
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="logo.svg">
 
@@ -18,7 +17,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
   :root{--primary:#065f46;--primary-light:#d1fae5;--accent:#ea580c;--accent-light:#fff7ed;--bg:#fafaf9;--card:#ffffff;--border:#e7e5e4;--text:#1c1917;--muted:#78716c;--danger:#dc2626}
-  *{box-sizing:border-box;margin:0;padding:0}
+  
+  /* Blue tap highlight hatane ke liye transparent set kiya gaya hai */
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;}
+  
   body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;max-width:720px;margin:0 auto;padding:16px;padding-bottom:90px}
   h1,h2,h3{font-weight:800}
   .hidden{display:none !important}
@@ -37,17 +39,18 @@
   .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
   .topbar h1{font-size:20px;color:var(--primary)}
   .topbar .sub{font-size:12px;color:var(--muted)}
-  .btn-icon{background:none;border:none;font-size:22px;cursor:pointer;padding:4px}
+  .btn-icon{background:none;border:none;font-size:22px;cursor:pointer;padding:4px;outline:none;}
   .card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
   .card h2{font-size:16px;color:var(--primary);margin-bottom:10px}
-  .btn{background:var(--primary);color:#fff;border:none;padding:12px 16px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;width:100%;margin-top:10px}
+  .btn{background:var(--primary);color:#fff;border:none;padding:12px 16px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;width:100%;margin-top:10px;outline:none;}
   .btn:active{opacity:.9}
   .btn-accent{background:var(--accent)}
   .btn-outline{background:#fff;border:2px solid var(--primary);color:var(--primary)}
   .btn-sm{padding:8px 12px;font-size:13px;width:auto;display:inline-block}
   .btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px;color:#444}
-  input,select,textarea{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:14px;background:#fff}
+  input,select,textarea{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:14px;background:#fff;outline:none;}
+  input:focus,select:focus,textarea:focus{border-color:var(--primary);}
   textarea{min-height:60px;resize:vertical}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(max-width:480px){.row{grid-template-columns:1fr}}
@@ -63,7 +66,7 @@
   .stage-card .ttl{font-size:13px;font-weight:700}
   .stage-card .desc{font-size:11px;color:var(--muted)}
   .log-btns{display:flex;gap:8px;margin:8px 0}
-  .log-btn{flex:1;padding:12px 8px;border:2px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;font-weight:700;font-size:13px;text-align:center}
+  .log-btn{flex:1;padding:12px 8px;border:2px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;font-weight:700;font-size:13px;text-align:center;outline:none;}
   .log-btn.selected{border-color:var(--primary);background:var(--primary-light)}
   .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px 0}
   .stat-box{background:#f5f5f4;border-radius:12px;padding:12px;text-align:center}
@@ -80,7 +83,7 @@
   
   .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--border);display:none;justify-content:space-around;padding:8px 0;z-index:100;max-width:720px;margin:0 auto}
   
-  .nav-btn{flex:1;text-align:center;padding:6px 2px;background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;font-weight:700}
+  .nav-btn{flex:1;text-align:center;padding:6px 2px;background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;font-weight:700;outline:none;}
   .nav-btn.active{color:var(--primary)}
   .nav-btn .icon{font-size:20px;display:block;margin-bottom:2px}
   #toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;display:none;z-index:200}
@@ -95,14 +98,12 @@
 
 <div id="toast"></div>
 
-<!-- 🚀 SPLASH / LOADING SCREEN -->
 <div id="screen-loading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;width:100vw;position:fixed;top:0;left:0;background:var(--bg);z-index:9999;">
   <div style="font-size:72px;animation:pulse 1.5s infinite">🧠</div>
   <h1 style="color:var(--primary);margin-top:20px;font-size:24px;letter-spacing:0.5px">Habit Maturity</h1>
   <div class="spinner"></div>
 </div>
 
-<!-- LOGIN -->
 <div id="screen-login" class="screen hidden">
   <div class="topbar" style="justify-content:center"><h1>🧠 Habit Maturity</h1></div>
   <div class="card" style="text-align:center;margin-top:20px">
@@ -124,7 +125,6 @@
   </div>
 </div>
 
-<!-- HOME -->
 <div id="screen-home" class="screen hidden">
   <div class="topbar">
     <div><h1>🧠 Habit Maturity</h1><div class="sub">Ek habit complete, phir next</div></div>
@@ -145,7 +145,6 @@
   <div id="habitsList"></div>
 </div>
 
-<!-- SETUP -->
 <div id="screen-setup" class="screen hidden">
   <div class="topbar">
     <button class="btn-icon" onclick="go('home')">←</button>
@@ -186,20 +185,17 @@
   <button class="btn btn-accent" onclick="saveNewHabit()">💾 Habit Save Karo</button>
 </div>
 
-<!-- TODAY (DYNAMIC CHECK-IN) -->
 <div id="screen-today" class="screen hidden">
   <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">✅ Check-In</h1><div style="width:32px"></div></div>
   <div id="todayNoHabit" class="card hidden"><div class="empty-state"><div style="font-size:48px">📝</div><div>Koi active habit nahi.</div><button class="btn" style="margin-top:10px" onclick="go('setup')">➕ Nayi Habit</button></div></div>
   <div id="dynamicFormsContainer"></div>
 </div>
 
-<!-- WEEKLY -->
 <div id="screen-weekly" class="screen hidden">
   <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">📅 Weekly Review</h1><div style="width:32px"></div></div>
   <div id="weeklyNoHabit" class="card hidden"><div class="empty-state">Pehle habit banaein.</div></div>
   <div id="weeklyContent">
     
-    <!-- STATS -->
     <div class="card">
       <h2>📊 Stats</h2>
       <div class="stat-grid"><div class="stat-box"><div class="val" id="wConsistency">—</div><div class="lbl">Consistency</div></div><div class="stat-box"><div class="val" id="wReminderFree">—</div><div class="lbl">Reminder-Free</div></div><div class="stat-box"><div class="val" id="wEffort">—</div><div class="lbl">Avg Effort</div></div><div class="stat-box"><div class="val" id="wDisruptions">—</div><div class="lbl">Disruptions</div></div></div>
@@ -208,12 +204,9 @@
       <div id="wTrend" style="font-family:monospace;font-size:14px;line-height:1.6"></div>
     </div>
 
-    <!-- LOCK BANNER -->
     <div id="reviewCountdownBanner" class="info-box" style="text-align:center;font-size:15px;display:none;background:#eff6ff;color:#1e40af;border:1.5px solid #bfdbfe;">
-      <!-- Countdown text -->
-    </div>
+      </div>
 
-    <!-- STAGE ASSESSMENT -->
     <div class="card" id="stageAssessmentCard">
       <h2>🎯 Stage Assessment</h2>
       <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Aapko lagta hai aap abhi kis stage pe hain? Be honest.</p>
@@ -221,7 +214,6 @@
       <div id="stageSelected" style="margin-top:10px;font-weight:700;color:var(--primary);display:none">Stage <span id="selStageNum">—</span> selected</div>
     </div>
 
-    <!-- REFLECTION -->
     <div class="card" id="reflectionCard">
       <h2>📝 Reflection</h2>
       <label>Is hafte ka sabse bada challenge?</label><textarea id="wChallenge" placeholder="Kya mushkil aaya..."></textarea>
@@ -231,7 +223,6 @@
   </div>
 </div>
 
-<!-- SETTINGS -->
 <div id="screen-settings" class="screen hidden">
   <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">⚙️ Settings</h1><div style="width:32px"></div></div>
   <div class="card">
@@ -264,7 +255,6 @@
   </div>
 </div>
 
-<!-- NAV -->
 <div class="bottom-nav">
   <button class="nav-btn active" onclick="go('home')"><span class="icon">🏠</span>Home</button>
   <button class="nav-btn" onclick="go('today')"><span class="icon">✅</span>Check-In</button>
@@ -347,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function(){
       if(!chk.checked) return;
       localStorage.removeItem('hm3_habits'); localStorage.removeItem('hm3_current');
       habits=[]; currentId=null; chk.checked = false; btn.disabled = true;
-      saveData(); 
+      saveData();
       toast('Saari data delete ho gayi'); renderHome(); go('home');
     };
   }
@@ -440,55 +430,56 @@ function renderHome(){
 function switchH(id){currentId=id;saveData();go('home');toast('Switched');}
 function deleteHabit(id){ if(confirm('Kya aap sach mein is habit ko delete karna chahte hain?')){ habits = habits.filter(h => h.id !== id); if(currentId === id){ currentId = habits.length ? habits[0].id : null; } saveData(); renderSettings(); toast('🗑️ Deleted'); } }
 
-// ===== 🚀 SMART SYSTEMS (DOCTOR IS NOW SMART!) =====
+// ===== 🚀 SMART SYSTEMS FIX =====
 function getSmartSystems(name, cue, type){
   const n = (name || '').toLowerCase();
   const c = (cue || '').toLowerCase();
   const combined = n + ' ' + c;
   let systems = [];
   
-  // Keyword based priority
+  // Keyword checking FIRST!
   if(combined.includes('paani') || combined.includes('pani') || combined.includes('water') || combined.includes('hydrate')){
     systems.push('Bedside glass + bottle raat ko bhar ke rakho');
     systems.push('Paani ki bottle hamesha samne rakho');
   } 
   else if (combined.includes('apple') || combined.includes('fruit') || combined.includes('fal') || combined.includes('khana')) {
-    systems.push('Raat ko hi apple table par nikal kar rakh do');
-    systems.push('Jahan brush karte ho, wahan samne fal rakh do');
+    systems.push('Raat ko hi apple / fal samne nikal kar rakh do');
+    systems.push('Dining table par pehle se plate ready rakho');
   } 
   else if (combined.includes('run') || combined.includes('jog') || combined.includes('gym') || combined.includes('exercise')) {
     systems.push('Raat ko shoes + socks bedside rakho');
     systems.push('Workout clothes pehle se nikal kar rakho');
   } 
   else if (combined.includes('padhai') || combined.includes('book') || combined.includes('study') || combined.includes('read')) {
-    systems.push('Book ko table par khula rakho');
+    systems.push('Book / notebook table par khula rakho');
     systems.push('Padhai ke waqt phone doosre room mein rakho');
   } 
-  else if (combined.includes('sone') || combined.includes('sleep') || combined.includes('bed')) {
-    systems.push('Sone se 1 ghanta pehle phone band kar do');
-    systems.push('Room ki light thodi dim (kam) kar do');
+  else if (combined.includes('sleep') || combined.includes('sone') || combined.includes('bed')) {
+    systems.push('Sone se 1 ghanta pehle screens band');
+    systems.push('Phone bistar se door charge par lagao');
   } 
   else if (combined.includes('phone') || combined.includes('screen') || combined.includes('social')) {
     systems.push('App blocker ya screen-timer set karo');
-    systems.push('Phone ko bistar se door charge par lagao');
+    systems.push('Distracting notifications mute kar do');
   }
-  // Generic Type based fallbacks
-  else if (type === 'health') {
-    systems.push('Saman (shoes/fal) raat ko hi samne nikal kar rakh do');
-    systems.push('Health tracker app ya calendar par daily tick karo');
-  } 
-  else if (type === 'work' || type === 'creative') {
-    systems.push('Kaam ki jagah ko saaf aur ready rakho');
-    systems.push('Pomodoro timer (25 min focus) ka use karo');
-  } 
-  else if (type === 'digital') {
-    systems.push('Screen time tracking on kar lo');
-    systems.push('Distracting apps par limit laga do');
-  }
+  // Generic Fallbacks agar koi keyword match nahi hua
   else {
-    // Ultimate Fallback
-    systems.push('If-Then plan likho (Agar X hoga, toh main Y karunga)');
-    systems.push('Ekdum chhota shuru karo (2 minute rule)');
+    if (type === 'health') {
+      systems.push('Saman (shoes/fal/bottle) raat ko hi samne nikal kar rakh do');
+      systems.push('Health tracker app ya calendar par daily tick karo');
+    } 
+    else if (type === 'digital') {
+      systems.push('App blocker ya screen-timer set karo');
+      systems.push('Distracting notifications mute kar do');
+    } 
+    else if (type === 'creative' || type === 'work') {
+      systems.push('Kaam ki jagah ko saaf aur ready rakho');
+      systems.push('Pomodoro timer (25 min focus) ka use karo');
+    } 
+    else {
+      systems.push('If-Then plan likho (Agar X hoga, toh main Y karunga)');
+      systems.push('Ekdum chhota shuru karo (2 minute rule)');
+    }
   }
   
   return systems;
