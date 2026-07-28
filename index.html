@@ -13,16 +13,58 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="logo.svg">
 
+<!-- 🚀 THEME MEMORY SCRIPT (Flash Rokne Ke Liye) -->
+<script>
+  if(localStorage.getItem('hm3_theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+</script>
+
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
-  :root{--primary:#065f46;--primary-light:#d1fae5;--accent:#ea580c;--accent-light:#fff7ed;--bg:#fafaf9;--card:#ffffff;--border:#e7e5e4;--text:#1c1917;--muted:#78716c;--danger:#dc2626}
+  :root{
+    --primary:#065f46;
+    --primary-light:#d1fae5;
+    --accent:#ea580c;
+    --accent-light:#fff7ed;
+    --bg:#fafaf9;
+    --card:#ffffff;
+    --border:#e7e5e4;
+    --text:#1c1917;
+    --muted:#78716c;
+    --danger:#dc2626;
+    --btn-text:#ffffff;
+    --solid-card-bg:linear-gradient(135deg, #065f46, #059669);
+    --solid-card-text:#ffffff;
+    --stat-bg:#f5f5f4;
+    --info-bg:#eff6ff; --info-text:#1e40af; --info-border:#bfdbfe;
+    --warn-bg:#fff1f2; --warn-text:#9f1239; --warn-border:#fecdd3;
+  }
   
-  /* BLUE TAP HIGHLIGHT REMOVED HERE 👇 */
+  [data-theme="dark"]{
+    --primary:#34d399; /* Vibrant Green for Dark Mode */
+    --primary-light:#064e3b; 
+    --accent:#f97316;
+    --accent-light:#431407;
+    --bg:#121212; /* Premium Dark Gray */
+    --card:#1e1e1e;
+    --border:#333333;
+    --text:#f5f5f5; /* Off-white text */
+    --muted:#a3a3a3;
+    --danger:#ef4444;
+    --btn-text:#121212; /* Dark text on Vibrant Green Buttons */
+    --solid-card-bg:linear-gradient(135deg, #064e3b, #022c22);
+    --solid-card-text:#34d399;
+    --stat-bg:#262626;
+    --info-bg:#172554; --info-text:#bfdbfe; --info-border:#1e3a8a;
+    --warn-bg:#4c0519; --warn-text:#fecdd3; --warn-border:#881337;
+  }
+  
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;}
   
-  body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;max-width:720px;margin:0 auto;padding:16px;padding-bottom:90px}
+  body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;max-width:720px;margin:0 auto;padding:16px;padding-bottom:90px;transition:background 0.3s ease, color 0.3s ease;}
   h1,h2,h3{font-weight:800}
   .hidden{display:none !important}
   .screen{animation:fadeIn .3s ease}
@@ -41,40 +83,46 @@
   .topbar h1{font-size:20px;color:var(--primary)}
   .topbar .sub{font-size:12px;color:var(--muted)}
   .btn-icon{background:none;border:none;font-size:22px;cursor:pointer;padding:4px;outline:none;}
-  .card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:background 0.3s ease, border 0.3s ease;}
   .card h2{font-size:16px;color:var(--primary);margin-bottom:10px}
-  .btn{background:var(--primary);color:#fff;border:none;padding:12px 16px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;width:100%;margin-top:10px;outline:none;}
+  .btn{background:var(--primary);color:var(--btn-text);border:none;padding:12px 16px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;width:100%;margin-top:10px;outline:none;transition:0.2s ease;}
   .btn:active{opacity:.9}
-  .btn-accent{background:var(--accent)}
-  .btn-outline{background:#fff;border:2px solid var(--primary);color:var(--primary)}
+  .btn-accent{background:var(--accent);color:#fff;}
+  .btn-outline{background:var(--card);border:2px solid var(--primary);color:var(--primary)}
   .btn-sm{padding:8px 12px;font-size:13px;width:auto;display:inline-block}
   .btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-  label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px;color:#444}
-  input,select,textarea{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:14px;background:#fff;outline:none;}
+  
+  /* Theme Toggle Segmented Control */
+  .theme-toggle-container{display:flex;background:var(--bg);border:2px solid var(--border);border-radius:12px;overflow:hidden;margin-top:8px;}
+  .theme-btn{flex:1;padding:12px;text-align:center;font-weight:700;font-size:14px;cursor:pointer;border:none;background:transparent;color:var(--text);outline:none;transition:0.2s ease;}
+  .theme-btn.active{background:var(--primary);color:var(--btn-text);}
+  
+  label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px;color:var(--muted)}
+  input,select,textarea{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:14px;background:var(--card);color:var(--text);outline:none;transition:border 0.2s ease, background 0.2s ease, color 0.2s ease;}
   input:focus,select:focus,textarea:focus{border-color:var(--primary);}
   textarea{min-height:60px;resize:vertical}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(max-width:480px){.row{grid-template-columns:1fr}}
   .pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-  .pill{background:var(--primary-light);color:var(--primary);border:1px solid #a7f3d0;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
-  .bar{height:14px;background:#e7e5e4;border-radius:999px;overflow:hidden;margin:8px 0}
+  .pill{background:var(--primary-light);color:var(--primary);border:1px solid var(--border);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
+  .bar{height:14px;background:var(--border);border-radius:999px;overflow:hidden;margin:8px 0}
   .bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),#059669);transition:width .6s ease}
   .stage-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
   @media(max-width:480px){.stage-grid{grid-template-columns:1fr}}
-  .stage-card{padding:12px;border:2px solid var(--border);border-radius:12px;cursor:pointer;text-align:center}
+  .stage-card{padding:12px;border:2px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:0.2s ease;}
   .stage-card.active{border-color:var(--primary);background:var(--primary-light)}
   .stage-card .num{font-size:20px;font-weight:900;color:var(--primary)}
   .stage-card .ttl{font-size:13px;font-weight:700}
   .stage-card .desc{font-size:11px;color:var(--muted)}
   .log-btns{display:flex;gap:8px;margin:8px 0}
-  .log-btn{flex:1;padding:12px 8px;border:2px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;font-weight:700;font-size:13px;text-align:center;outline:none;}
+  .log-btn{flex:1;padding:12px 8px;border:2px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);cursor:pointer;font-weight:700;font-size:13px;text-align:center;outline:none;transition:0.2s ease;}
   .log-btn.selected{border-color:var(--primary);background:var(--primary-light)}
   .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px 0}
-  .stat-box{background:#f5f5f4;border-radius:12px;padding:12px;text-align:center}
+  .stat-box{background:var(--stat-bg);border-radius:12px;padding:12px;text-align:center;transition:background 0.3s ease;}
   .stat-box .val{font-size:24px;font-weight:900;color:var(--primary)}
   .stat-box .lbl{font-size:11px;color:var(--muted)}
-  .sys-item{display:flex;align-items:flex-start;gap:10px;padding:10px;background:#fafaf9;border:1.5px solid var(--border);border-radius:10px;margin:6px 0}
-  .habit-item{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;margin-bottom:10px;cursor:pointer}
+  .sys-item{display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin:6px 0;transition:background 0.3s ease, border 0.3s ease;}
+  .habit-item{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;margin-bottom:10px;cursor:pointer;transition:border 0.2s ease, background 0.3s ease;}
   .habit-item .info{flex:1}
   .habit-item .name{font-weight:800;font-size:15px}
   .habit-item .meta{font-size:12px;color:var(--muted)}
@@ -82,9 +130,9 @@
   .toggle{display:flex;align-items:center;gap:10px;margin:8px 0}
   .toggle input{width:auto}
   
-  /* YOUTUBE STYLE BOTTOM NAV CSS 👇 */
-  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:none;justify-content:space-around;padding:8px 12px 12px 12px;z-index:100;max-width:720px;margin:0 auto;}
-  .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;font-weight:600;outline:none;transition:0.2s ease;}
+  /* YOUTUBE STYLE BOTTOM NAV CSS */
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:none;justify-content:space-around;padding:8px 12px 12px 12px;z-index:100;max-width:720px;margin:0 auto;transition:background 0.3s ease, border 0.3s ease;}
+  .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;font-weight:600;outline:none;transition:color 0.2s ease;}
   .nav-btn.active{color:var(--primary);font-weight:700;}
   
   .nav-btn .icon-container{display:flex;align-items:center;justify-content:center;width:64px;height:32px;border-radius:16px;margin-bottom:4px;transition:background 0.2s ease;}
@@ -99,9 +147,9 @@
   
   #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;display:none;z-index:200}
   .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
-  .info-box{background:#eff6ff;border:1.5px solid #bfdbfe;color:#1e40af;border-radius:10px;padding:12px;font-size:13px;margin:10px 0}
-  .tip-box{background:var(--primary-light);border:1.5px solid #a7f3d0;color:var(--primary);border-radius:10px;padding:12px;font-size:13px;margin:10px 0}
-  .warn-box{background:#fff1f2;border:1.5px solid #fecdd3;color:#9f1239;border-radius:10px;padding:12px;font-size:13px;margin:10px 0}
+  .info-box{background:var(--info-bg);border:1.5px solid var(--info-border);color:var(--info-text);border-radius:10px;padding:12px;font-size:13px;margin:10px 0;transition:0.3s ease;}
+  .tip-box{background:var(--primary-light);border:1.5px solid var(--primary);color:var(--primary);border-radius:10px;padding:12px;font-size:13px;margin:10px 0;transition:0.3s ease;}
+  .warn-box{background:var(--warn-bg);border:1.5px solid var(--warn-border);color:var(--warn-text);border-radius:10px;padding:12px;font-size:13px;margin:10px 0;transition:0.3s ease;}
   .divider{height:1px;background:var(--border);margin:14px 0}
 </style>
 </head>
@@ -134,7 +182,7 @@
     <input type="password" id="loginPassword" placeholder="6+ characters">
     <button class="btn" onclick="loginUser()">🔑 Login</button>
     <button class="btn btn-outline" style="margin-top:8px" onclick="signupUser()">🆕 Sign Up</button>
-    <div id="loginError" style="color:#dc2626;font-size:13px;margin-top:10px;display:none"></div>
+    <div id="loginError" style="color:var(--danger);font-size:13px;margin-top:10px;display:none"></div>
   </div>
 </div>
 
@@ -142,26 +190,27 @@
 <div id="screen-home" class="screen hidden">
   <div class="topbar">
     <div><h1>🧠 Habit Maturity</h1><div class="sub">Ek habit complete, phir next</div></div>
+    <button class="btn-icon" onclick="go('settings')" style="color:var(--text)">⚙️</button>
   </div>
-  <div class="card" style="background:linear-gradient(135deg,var(--primary),#059669);color:#fff;border:none">
+  <div class="card active-habit-card" style="background:var(--solid-card-bg);color:var(--solid-card-text);border:none">
     <div style="font-size:13px;opacity:.9">Aapka Active Habit</div>
     <div id="activeHabitName" style="font-size:20px;font-weight:900;margin:4px 0">Koi habit nahi</div>
     <div id="activeHabitStage" class="pills"></div>
-    <div class="bar" style="background:rgba(255,255,255,.3);margin-top:10px"><div id="activeHabitProgress" class="bar-fill" style="width:0%;background:#fff"></div></div>
+    <div class="bar" style="background:rgba(255,255,255,.3);margin-top:10px"><div id="activeHabitProgress" class="bar-fill" style="width:0%;background:var(--solid-card-text)"></div></div>
     <div style="font-size:12px;opacity:.9;margin-top:4px">Consistency: <span id="activeConsistency">—</span></div>
   </div>
   <div class="btn-group">
     <button class="btn btn-accent" onclick="go('setup')">➕ Nayi Habit</button>
     <button class="btn btn-outline" onclick="go('today')">✅ Check-In</button>
   </div>
-  <h2 style="font-size:16px;margin:20px 0 10px">📋 Meri Habits</h2>
+  <h2 style="font-size:16px;margin:20px 0 10px;color:var(--text)">📋 Meri Habits</h2>
   <div id="habitsList"></div>
 </div>
 
 <!-- SETUP -->
 <div id="screen-setup" class="screen hidden">
   <div class="topbar">
-    <button class="btn-icon" onclick="go('home')">←</button>
+    <button class="btn-icon" onclick="go('home')" style="color:var(--text)">←</button>
     <h1 style="flex:1;text-align:center;font-size:18px">➕ Nayi Habit</h1>
     <div style="width:32px"></div>
   </div>
@@ -201,14 +250,14 @@
 
 <!-- TODAY (DYNAMIC CHECK-IN) -->
 <div id="screen-today" class="screen hidden">
-  <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">✅ Check-In</h1><div style="width:32px"></div></div>
+  <div class="topbar"><button class="btn-icon" onclick="go('home')" style="color:var(--text)">←</button><h1 style="flex:1;text-align:center;font-size:18px">✅ Check-In</h1><div style="width:32px"></div></div>
   <div id="todayNoHabit" class="card hidden"><div class="empty-state"><div style="font-size:48px">📝</div><div>Koi active habit nahi.</div><button class="btn" style="margin-top:10px" onclick="go('setup')">➕ Nayi Habit</button></div></div>
   <div id="dynamicFormsContainer"></div>
 </div>
 
 <!-- WEEKLY -->
 <div id="screen-weekly" class="screen hidden">
-  <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">📅 Weekly Review</h1><div style="width:32px"></div></div>
+  <div class="topbar"><button class="btn-icon" onclick="go('home')" style="color:var(--text)">←</button><h1 style="flex:1;text-align:center;font-size:18px">📅 Weekly Review</h1><div style="width:32px"></div></div>
   <div id="weeklyNoHabit" class="card hidden"><div class="empty-state">Pehle habit banaein.</div></div>
   <div id="weeklyContent">
     
@@ -217,12 +266,12 @@
       <h2>📊 Stats</h2>
       <div class="stat-grid"><div class="stat-box"><div class="val" id="wConsistency">—</div><div class="lbl">Consistency</div></div><div class="stat-box"><div class="val" id="wReminderFree">—</div><div class="lbl">Reminder-Free</div></div><div class="stat-box"><div class="val" id="wEffort">—</div><div class="lbl">Avg Effort</div></div><div class="stat-box"><div class="val" id="wDisruptions">—</div><div class="lbl">Disruptions</div></div></div>
       <div class="divider"></div>
-      <div style="font-size:13px;font-weight:700;margin-bottom:6px">📈 Trend (4 Weeks)</div>
-      <div id="wTrend" style="font-family:monospace;font-size:14px;line-height:1.6"></div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--text)">📈 Trend (4 Weeks)</div>
+      <div id="wTrend" style="font-family:monospace;font-size:14px;line-height:1.6;color:var(--text)"></div>
     </div>
 
     <!-- LOCK BANNER -->
-    <div id="reviewCountdownBanner" class="info-box" style="text-align:center;font-size:15px;display:none;background:#eff6ff;color:#1e40af;border:1.5px solid #bfdbfe;">
+    <div id="reviewCountdownBanner" class="info-box" style="text-align:center;font-size:15px;display:none;">
       <!-- Countdown text -->
     </div>
 
@@ -246,25 +295,35 @@
 
 <!-- SETTINGS -->
 <div id="screen-settings" class="screen hidden">
-  <div class="topbar"><button class="btn-icon" onclick="go('home')">←</button><h1 style="flex:1;text-align:center;font-size:18px">⚙️ Settings</h1><div style="width:32px"></div></div>
+  <div class="topbar"><button class="btn-icon" onclick="go('home')" style="color:var(--text)">←</button><h1 style="flex:1;text-align:center;font-size:18px">⚙️ Settings</h1><div style="width:32px"></div></div>
   <div class="card">
     <div style="font-size:13px;color:var(--muted)">Logged in as</div>
     <div id="userEmail" style="font-size:15px;font-weight:700;color:var(--primary)">—</div>
     <button class="btn btn-outline" style="margin-top:10px" onclick="logoutUser()">🚪 Logout</button>
   </div>
+  
+  <!-- 🚀 NEW THEME TOGGLE CARD -->
+  <div class="card">
+    <h2>🎨 App Theme</h2>
+    <div class="theme-toggle-container">
+      <button id="btnThemeLight" class="theme-btn active" onclick="setTheme('light')">☀️ Light</button>
+      <button id="btnThemeDark" class="theme-btn" onclick="setTheme('dark')">🌙 Dark</button>
+    </div>
+  </div>
+
   <div class="card">
     <h2>🗑️ Manage Habits</h2>
     <div id="settingsHabitList"></div>
   </div>
-  <div class="card"><div style="font-size:13px;color:var(--muted)">Active Habit</div><div id="sysHabitName" style="font-size:18px;font-weight:900">—</div></div>
+  <div class="card"><div style="font-size:13px;color:var(--muted)">Active Habit</div><div id="sysHabitName" style="font-size:18px;font-weight:900;color:var(--text)">—</div></div>
   <div class="card"><h2>🔧 Active Systems</h2><div id="activeSystemsList"></div></div>
   <div class="card">
-    <h2>⚠️ Danger Zone</h2>
+    <h2 style="color:var(--danger)">⚠️ Danger Zone</h2>
     <label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0;cursor:pointer;">
       <input type="checkbox" id="chkDelete" style="width:20px;height:20px;flex-shrink:0;margin-top:2px;">
       <span style="font-size:13px;font-weight:400;color:var(--text);">Main samajhta hoon ki saari data permanently delete ho jayegi</span>
     </label>
-    <button type="button" class="btn" style="background:var(--danger);opacity:.5;" id="btnFinalDelete" disabled>🗑️ Delete All Data</button>
+    <button type="button" class="btn" style="background:var(--danger);color:#fff;opacity:.5;" id="btnFinalDelete" disabled>🗑️ Delete All Data</button>
   </div>
   <div class="card">
     <h2>💾 Backup & Restore</h2>
@@ -361,12 +420,32 @@ function skipLogin(){
   renderHome(); updateSaveStatus(); hideSplashScreen(); toast('Offline mode ON');
 }
 
-// ===== STATE =====
+// ===== STATE & THEME INITIALIZATION =====
 let habits=[], currentId=null, selStage=null;
 window.formState = {}; 
 window.editingToday = false;
 
+// 🚀 Theme Toggle Logic
+function setTheme(theme) {
+  if(theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    if($('btnThemeDark')) $('btnThemeDark').classList.add('active');
+    if($('btnThemeLight')) $('btnThemeLight').classList.remove('active');
+    localStorage.setItem('hm3_theme', 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    if($('btnThemeLight')) $('btnThemeLight').classList.add('active');
+    if($('btnThemeDark')) $('btnThemeDark').classList.remove('active');
+    localStorage.setItem('hm3_theme', 'light');
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function(){
+  // Update toggle buttons on load based on memory
+  let savedTheme = localStorage.getItem('hm3_theme');
+  if(savedTheme === 'dark') { setTheme('dark'); } 
+  else { setTheme('light'); }
+  
   let localData = localStorage.getItem('hm3_habits');
   if(localData){
     try{ habits=JSON.parse(localData); currentId=localStorage.getItem('hm3_current')||null; }catch(e){}
@@ -464,9 +543,12 @@ function renderHome(){
     $('activeHabitName').textContent='Koi habit nahi'; $('activeHabitStage').innerHTML=''; $('activeHabitProgress').style.width='0%'; $('activeConsistency').textContent='—';
   }else{
     $('activeHabitName').textContent=h.name;
+    
+    // Dynamic Pill Colors that work in both Light/Dark mode
+    const clr={1:'var(--danger)', 2:'var(--accent)', 3:'#10b981', 4:'var(--primary)'};
     const lbl={1:'Stage 1: Initiation',2:'Stage 2: Stabilization',3:'Stage 3: Automaticity',4:'Stage 4: Identity'};
-    const clr={1:'#dc2626',2:'#f59e0b',3:'#059669',4:'#065f46'};
-    $('activeHabitStage').innerHTML=`<span class="pill" style="background:#ffffff; color:${clr[h.stage]||'#333'}; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-weight:900; padding:4px 12px;">${lbl[h.stage]||'?'}</span>`;
+    
+    $('activeHabitStage').innerHTML=`<span class="pill" style="background:var(--card); color:${clr[h.stage]||'var(--text)'}; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-weight:900; padding:4px 12px;">${lbl[h.stage]||'?'}</span>`;
     const s=calcStats(h,7); const pct=s.total?Math.round(s.done/s.total*100):0;
     $('activeHabitProgress').style.width=pct+'%'; $('activeConsistency').textContent=pct+'% (last 7d)';
   }
@@ -480,7 +562,7 @@ function renderHome(){
 function switchH(id){currentId=id;saveData();go('home');toast('Switched');}
 function deleteHabit(id){ if(confirm('Kya aap sach mein is habit ko delete karna chahte hain?')){ habits = habits.filter(h => h.id !== id); if(currentId === id){ currentId = habits.length ? habits[0].id : null; } saveData(); renderSettings(); toast('🗑️ Deleted'); } }
 
-// ===== 🚀 SMART SYSTEMS FIX =====
+// ===== SMART SYSTEMS =====
 function getSmartSystems(name, cue, type){
   const n = (name || '').toLowerCase();
   const c = (cue || '').toLowerCase();
@@ -587,8 +669,8 @@ function renderToday(){
 
   let tLog = h.logs.find(l => l.date === todayStr());
   if(tLog && !window.editingToday){
-    html += `<div class="card" style="background:var(--primary-light);border-color:#a7f3d0;text-align:center">
-               <div style="font-size:24px">✅</div><div style="font-weight:800;margin:6px 0">Aaj ka log save hai!</div>
+    html += `<div class="card" style="background:var(--primary-light);border-color:var(--primary);text-align:center">
+               <div style="font-size:24px">✅</div><div style="font-weight:800;margin:6px 0;color:var(--primary)">Aaj ka log save hai!</div>
                <button class="btn btn-outline btn-sm" onclick="window.editingToday=true; renderToday();">✏️ Edit Today</button>
              </div>`;
   } else {
@@ -735,7 +817,7 @@ function renderWeekly(){
     assessCard.classList.add('locked-section');
     reflectCard.classList.add('locked-section');
     banner.style.display = 'block';
-    banner.innerHTML = `⏳ Next Review: <strong>${daysLeft} Days Left</strong>`;
+    banner.innerHTML = `⏳ Next Review: <strong style="color:var(--primary)">${daysLeft} Days Left</strong>`;
   } else {
     assessCard.classList.remove('locked-section');
     reflectCard.classList.remove('locked-section');
@@ -772,7 +854,7 @@ function renderSettings(){
   
   const shList = $('settingsHabitList');
   if(!habits.length) shList.innerHTML = '<div style="color:var(--muted);font-size:13px">Koi habit nahi.</div>';
-  else shList.innerHTML = habits.map(h => `<div class="sys-item" style="align-items:center;"><div style="flex:1;font-weight:700;font-size:13px">${h.name}</div><button onclick="deleteHabit('${h.id}')" class="btn btn-sm" style="background:var(--danger);padding:6px 12px;font-size:12px;margin:0;">Delete</button></div>`).join('');
+  else shList.innerHTML = habits.map(h => `<div class="sys-item" style="align-items:center;"><div style="flex:1;font-weight:700;font-size:13px">${h.name}</div><button onclick="deleteHabit('${h.id}')" class="btn btn-sm" style="background:var(--danger);color:#fff;padding:6px 12px;font-size:12px;margin:0;border:none;">Delete</button></div>`).join('');
   
   if(!h){
       $('sysHabitName').textContent='Koi habit nahi';
