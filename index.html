@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 
-// ===== DANGER ZONE INIT (Firebase Delete Bug Fixed) =====
+// DANGER ZONE INIT
 document.addEventListener('DOMContentLoaded', function(){
   var chk = document.getElementById('chkDelete');
   var btn = document.getElementById('btnFinalDelete');
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function(){
       if(!chk.checked) return;
       localStorage.removeItem('hm3_habits'); localStorage.removeItem('hm3_current');
       habits=[]; currentId=null; chk.checked = false; btn.disabled = true;
-      saveData(); // Firebase ko bhi khali karne ke liye update bhej diya
+      saveData(); 
       toast('Saari data delete ho gayi'); renderHome(); go('home');
     };
   }
@@ -440,32 +440,57 @@ function renderHome(){
 function switchH(id){currentId=id;saveData();go('home');toast('Switched');}
 function deleteHabit(id){ if(confirm('Kya aap sach mein is habit ko delete karna chahte hain?')){ habits = habits.filter(h => h.id !== id); if(currentId === id){ currentId = habits.length ? habits[0].id : null; } saveData(); renderSettings(); toast('🗑️ Deleted'); } }
 
-// ===== SETUP =====
+// ===== 🚀 SMART SYSTEMS (DOCTOR IS NOW SMART!) =====
 function getSmartSystems(name, cue, type){
-  const n=(name||'').toLowerCase();
-  const c=(cue||'').toLowerCase();
+  const n = (name || '').toLowerCase();
+  const c = (cue || '').toLowerCase();
   const combined = n + ' ' + c;
-  let systems=[];
+  let systems = [];
   
-  if(type === 'health' || combined.includes('paani') || combined.includes('pani') || combined.includes('water')){
+  // Keyword based priority
+  if(combined.includes('paani') || combined.includes('pani') || combined.includes('water') || combined.includes('hydrate')){
     systems.push('Bedside glass + bottle raat ko bhar ke rakho');
-    systems.push('Brush ke baad basin pe glass rakhna');
-  } else if (combined.includes('run') || combined.includes('jog') || combined.includes('gym')) {
+    systems.push('Paani ki bottle hamesha samne rakho');
+  } 
+  else if (combined.includes('apple') || combined.includes('fruit') || combined.includes('fal') || combined.includes('khana')) {
+    systems.push('Raat ko hi apple table par nikal kar rakh do');
+    systems.push('Jahan brush karte ho, wahan samne fal rakh do');
+  } 
+  else if (combined.includes('run') || combined.includes('jog') || combined.includes('gym') || combined.includes('exercise')) {
     systems.push('Raat ko shoes + socks bedside rakho');
-    systems.push('Running clothes pehle se taiyaar rakho');
-  } else if(type === 'digital' || combined.includes('phone') || combined.includes('screen') || combined.includes('social')){
-    systems.push('Phone ko doosre room mein charge pe lagao');
+    systems.push('Workout clothes pehle se nikal kar rakho');
+  } 
+  else if (combined.includes('padhai') || combined.includes('book') || combined.includes('study') || combined.includes('read')) {
+    systems.push('Book ko table par khula rakho');
+    systems.push('Padhai ke waqt phone doosre room mein rakho');
+  } 
+  else if (combined.includes('sone') || combined.includes('sleep') || combined.includes('bed')) {
+    systems.push('Sone se 1 ghanta pehle phone band kar do');
+    systems.push('Room ki light thodi dim (kam) kar do');
+  } 
+  else if (combined.includes('phone') || combined.includes('screen') || combined.includes('social')) {
     systems.push('App blocker ya screen-timer set karo');
-  } else if(type === 'creative' || type === 'work' || combined.includes('padhai') || combined.includes('book') || combined.includes('study')){
-    systems.push('Book / notebook ko table par khula rakho');
-    systems.push('Pomodoro timer (25 min focus) set karo');
-  } else if(type === 'sleep' || combined.includes('sone') || combined.includes('sleep')){
-    systems.push('Sone se 1 ghanta pehle screens band (No-phone rule)');
-    systems.push('Room ka temperature thanda rakho');
-  } else {
+    systems.push('Phone ko bistar se door charge par lagao');
+  }
+  // Generic Type based fallbacks
+  else if (type === 'health') {
+    systems.push('Saman (shoes/fal) raat ko hi samne nikal kar rakh do');
+    systems.push('Health tracker app ya calendar par daily tick karo');
+  } 
+  else if (type === 'work' || type === 'creative') {
+    systems.push('Kaam ki jagah ko saaf aur ready rakho');
+    systems.push('Pomodoro timer (25 min focus) ka use karo');
+  } 
+  else if (type === 'digital') {
+    systems.push('Screen time tracking on kar lo');
+    systems.push('Distracting apps par limit laga do');
+  }
+  else {
+    // Ultimate Fallback
     systems.push('If-Then plan likho (Agar X hoga, toh main Y karunga)');
     systems.push('Ekdum chhota shuru karo (2 minute rule)');
   }
+  
   return systems;
 }
 
@@ -651,7 +676,7 @@ function renderWeekly(){
   if(daysElapsed < 0) daysElapsed = 0;
   
   let currentCycle = Math.floor(daysElapsed / 7);
-  let lastReviewedCycle = 0;
+  let lastReviewedCycle = -1;
   if(h.history && h.history.length > 0){
     lastReviewedCycle = Math.max(...h.history.map(r => r.week != null ? r.week : -1));
   }
