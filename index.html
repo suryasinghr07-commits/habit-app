@@ -199,7 +199,7 @@
   <div id="weeklyNoHabit" class="card hidden"><div class="empty-state">Pehle habit banaein.</div></div>
   <div id="weeklyContent">
     
-    <!-- STATS (Hamesha khula rahega) -->
+    <!-- STATS -->
     <div class="card">
       <h2>📊 Stats</h2>
       <div class="stat-grid"><div class="stat-box"><div class="val" id="wConsistency">—</div><div class="lbl">Consistency</div></div><div class="stat-box"><div class="val" id="wReminderFree">—</div><div class="lbl">Reminder-Free</div></div><div class="stat-box"><div class="val" id="wEffort">—</div><div class="lbl">Avg Effort</div></div><div class="stat-box"><div class="val" id="wDisruptions">—</div><div class="lbl">Disruptions</div></div></div>
@@ -213,7 +213,7 @@
       <!-- Countdown text -->
     </div>
 
-    <!-- STAGE ASSESSMENT (Lock ho sakta hai) -->
+    <!-- STAGE ASSESSMENT -->
     <div class="card" id="stageAssessmentCard">
       <h2>🎯 Stage Assessment</h2>
       <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Aapko lagta hai aap abhi kis stage pe hain? Be honest.</p>
@@ -221,7 +221,7 @@
       <div id="stageSelected" style="margin-top:10px;font-weight:700;color:var(--primary);display:none">Stage <span id="selStageNum">—</span> selected</div>
     </div>
 
-    <!-- REFLECTION (Lock ho sakta hai) -->
+    <!-- REFLECTION -->
     <div class="card" id="reflectionCard">
       <h2>📝 Reflection</h2>
       <label>Is hafte ka sabse bada challenge?</label><textarea id="wChallenge" placeholder="Kya mushkil aaya..."></textarea>
@@ -322,7 +322,7 @@ function skipLogin(){
 }
 
 // ===== STATE =====
-let habits=[], currentId=null;
+let habits=[], currentId=null, selStage=null;
 window.formState = {}; 
 window.editingToday = false;
 
@@ -334,6 +334,22 @@ document.addEventListener('DOMContentLoaded', function(){
     renderHome(); updateSaveStatus(); setTimeout(hideSplashScreen, 300);
   } else if (!isFirebaseReady) {
     setTimeout(hideSplashScreen, 300); $('screen-login').classList.remove('hidden');
+  }
+});
+
+// ===== DANGER ZONE INIT (Firebase Delete Bug Fixed) =====
+document.addEventListener('DOMContentLoaded', function(){
+  var chk = document.getElementById('chkDelete');
+  var btn = document.getElementById('btnFinalDelete');
+  if(chk && btn){
+    chk.onchange = function(){ btn.disabled = !chk.checked; btn.style.opacity = chk.checked ? '1' : '.5'; };
+    btn.onclick = function(){
+      if(!chk.checked) return;
+      localStorage.removeItem('hm3_habits'); localStorage.removeItem('hm3_current');
+      habits=[]; currentId=null; chk.checked = false; btn.disabled = true;
+      saveData(); // Firebase ko bhi khali karne ke liye update bhej diya
+      toast('Saari data delete ho gayi'); renderHome(); go('home');
+    };
   }
 });
 
@@ -425,21 +441,59 @@ function switchH(id){currentId=id;saveData();go('home');toast('Switched');}
 function deleteHabit(id){ if(confirm('Kya aap sach mein is habit ko delete karna chahte hain?')){ habits = habits.filter(h => h.id !== id); if(currentId === id){ currentId = habits.length ? habits[0].id : null; } saveData(); renderSettings(); toast('🗑️ Deleted'); } }
 
 // ===== SETUP =====
-function getSmartSystems(n,c){return ['Bedside glass / paani aage rakho','Running clothes taiyaar rakho','Phone doosre room mein rakho','Chhota shuru karo'];}
+function getSmartSystems(name, cue, type){
+  const n=(name||'').toLowerCase();
+  const c=(cue||'').toLowerCase();
+  const combined = n + ' ' + c;
+  let systems=[];
+  
+  if(type === 'health' || combined.includes('paani') || combined.includes('pani') || combined.includes('water')){
+    systems.push('Bedside glass + bottle raat ko bhar ke rakho');
+    systems.push('Brush ke baad basin pe glass rakhna');
+  } else if (combined.includes('run') || combined.includes('jog') || combined.includes('gym')) {
+    systems.push('Raat ko shoes + socks bedside rakho');
+    systems.push('Running clothes pehle se taiyaar rakho');
+  } else if(type === 'digital' || combined.includes('phone') || combined.includes('screen') || combined.includes('social')){
+    systems.push('Phone ko doosre room mein charge pe lagao');
+    systems.push('App blocker ya screen-timer set karo');
+  } else if(type === 'creative' || type === 'work' || combined.includes('padhai') || combined.includes('book') || combined.includes('study')){
+    systems.push('Book / notebook ko table par khula rakho');
+    systems.push('Pomodoro timer (25 min focus) set karo');
+  } else if(type === 'sleep' || combined.includes('sone') || combined.includes('sleep')){
+    systems.push('Sone se 1 ghanta pehle screens band (No-phone rule)');
+    systems.push('Room ka temperature thanda rakho');
+  } else {
+    systems.push('If-Then plan likho (Agar X hoga, toh main Y karunga)');
+    systems.push('Ekdum chhota shuru karo (2 minute rule)');
+  }
+  return systems;
+}
+
 function calculatePrediction(){
   const c=$('sComplexity').value; let mn=18,lk=45,mx=90;
   if(c==='simple'){mn=14;lk=30;mx=55;}else if(c==='moderate'){mn=25;lk=55;mx=100;}else{mn=45;lk=90;mx=180;}
   $('pMin').textContent=mn+'d';$('pLikely').textContent=lk+'d';$('pMax').textContent=mx+'d';$('pWeeks').textContent=Math.round(lk/7)+'w';
-  $('systemsCard').style.display='block'; const sys=getSmartSystems();
-  $('systemsList').innerHTML=sys.length?sys.map((s,i)=>`<div class="sys-item"><input type="checkbox" checked style="width:18px;height:18px;"><div style="flex:1;font-weight:700;font-size:13px">${s}</div></div>`).join(''):'';
+  
+  $('systemsCard').style.display='block'; 
+  const sys = getSmartSystems($('sName').value, $('sCue').value, $('sType').value);
+  $('systemsList').innerHTML=sys.length?sys.map((s,i)=>`<div class="sys-item"><input type="checkbox" checked style="width:18px;height:18px;flex-shrink:0"><div style="flex:1"><div class="sys-txt" style="font-weight:700;font-size:13px">${s}</div></div></div>`).join(''):'';
 }
+
 function saveNewHabit(){
   const name=$('sName').value.trim(); if(!name){toast('Naam likhein');return;}
   const h={id:genId(),name:name,type:$('sType').value,complexity:$('sComplexity').value,cue:$('sCue').value,created:todayStr(),stage:1,logs:[],systems:[],maint:{active:false,logs:[]},ready:false};
-  habits.push(h);currentId=h.id;saveData(); $('sName').value='';$('systemsCard').style.display='none'; toast('✅ Saved!');go('home');
+  
+  document.querySelectorAll('#systemsList input:checked').forEach(cb=>{
+    const txt = cb.closest('.sys-item').querySelector('.sys-txt').textContent;
+    h.systems.push({name: txt, active: true, added: todayStr()});
+  });
+  
+  habits.push(h);currentId=h.id;saveData(); 
+  $('sName').value=''; $('sCue').value=''; $('systemsCard').style.display='none'; 
+  toast('✅ Saved!'); go('home');
 }
 
-// ===== 🚀 DYNAMIC CHECK-IN SYSTEM (SAFE DATE PARSING) =====
+// ===== DYNAMIC CHECK-IN SYSTEM =====
 function getMissedDates(h) {
   let missed = []; if (!h.created) return missed;
   let cP = h.created.split('-'); let curr = new Date(cP[0], cP[1]-1, cP[2]);
@@ -484,6 +538,19 @@ function buildFormHTML(dateStr, isToday, h) {
   let title = isToday ? "1. Kya aaj yeh kiya?" : `<span style="color:var(--danger)">⚠️ You missed on (${fmtDateReadable(dateStr)})</span><br><span style="font-size:14px">1. Kya is din yeh kiya?</span>`;
   let borderStyle = !isToday ? 'border-left: 4px solid var(--danger);' : '';
   
+  let eventHTML = '';
+  if(h.freq === 'event'){
+    eventHTML = `
+      <div style="margin-top:14px;border-top:1px dashed var(--border);padding-top:10px">
+        <label>📊 Event Tracking</label>
+        <div class="row">
+          <div><label style="font-size:11px;margin:4px 0">Event kitni baar?</label><input type="number" id="eOpp_${dateStr}" min="0" value="0" oninput="calcEDyn('${dateStr}')"></div>
+          <div><label style="font-size:11px;margin:4px 0">Behavior kitni baar?</label><input type="number" id="eExec_${dateStr}" min="0" value="0" oninput="calcEDyn('${dateStr}')"></div>
+        </div>
+        <div style="text-align:center;margin-top:8px"><span style="font-size:12px;color:var(--muted)">Success Rate: </span><span id="eRate_${dateStr}" style="font-weight:900;color:var(--primary)">0%</span></div>
+      </div>`;
+  }
+  
   return `
   <div class="card" style="${borderStyle}">
     <h2>${title}</h2>
@@ -504,6 +571,9 @@ function buildFormHTML(dateStr, isToday, h) {
       <select id="tEnjoy_${dateStr}"><option value="5">😊 Bahut achha / energized</option><option value="4">🙂 Achha laga</option><option value="3">😐 Theek thak</option><option value="2">😕 Thoda boring</option><option value="1">😞 Acha nahi laga</option></select>
       <label>Notes (optional)</label>
       <textarea id="tNotes_${dateStr}" placeholder="Kuch special hua tha..."></textarea>
+      
+      ${eventHTML} 
+
       <button class="btn" style="margin-top:12px" onclick="saveDynamicLog('${dateStr}')">💾 ${isToday?'Aaj ka ':''}Log Save</button>
     </div>
     <div id="missedLogDetails_${dateStr}" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;">
@@ -514,6 +584,11 @@ function buildFormHTML(dateStr, isToday, h) {
       <button class="btn" style="margin-top:12px;background:var(--danger)" onclick="saveDynamicLog('${dateStr}')">💾 Save Missed Log</button>
     </div>
   </div>`;
+}
+
+function calcEDyn(dStr){
+  const o = parseInt($(`eOpp_${dStr}`).value)||0; const e = parseInt($(`eExec_${dStr}`).value)||0;
+  $(`eRate_${dStr}`).textContent = (o ? Math.round(Math.min(e,o)/o*100) : 0) + '%';
 }
 
 function selectDynamicPerf(btn, dateStr, val){
@@ -536,6 +611,11 @@ function saveDynamicLog(dateStr){
     log = { date: dateStr, done: val==='yes', partial: val==='partial', reminder: $(`tReminder_${dateStr}`).value==='yes', effort: parseInt($(`tEffort_${dateStr}`).value), ctx: $(`tContext_${dateStr}`).value, enjoy: parseInt($(`tEnjoy_${dateStr}`).value), notes: $(`tNotes_${dateStr}`).value };
   }
   
+  if(h.freq === 'event'){
+    log.opp = parseInt($(`eOpp_${dateStr}`)?.value)||0;
+    log.exec = parseInt($(`eExec_${dateStr}`)?.value)||0;
+  }
+  
   h.logs = h.logs.filter(l => l.date !== dateStr);
   h.logs.push(log);
   saveData();
@@ -544,7 +624,7 @@ function saveDynamicLog(dateStr){
   renderToday(); 
 }
 
-// ===== 🚀 WEEKLY (SMART LOCK FIXED CYCLE) =====
+// ===== WEEKLY (PERFECT FIXED CYCLE) =====
 function calcStats(h,days=7){ const logs=h.logs.slice(-days); return{total:logs.length,done:logs.filter(l=>l.done).length,remFree:logs.filter(l=>!l.reminder).length,effort:logs.length?(logs.reduce((s,l)=>s+(l.effort||5),0)/logs.length).toFixed(1):0,disrupt:logs.filter(l=>l.ctx&&l.ctx!=='normal').length}; }
 
 function renderWeekly(){
@@ -573,15 +653,15 @@ function renderWeekly(){
   let currentCycle = Math.floor(daysElapsed / 7);
   let lastReviewedCycle = 0;
   if(h.history && h.history.length > 0){
-    lastReviewedCycle = Math.max(...h.history.map(r => r.week || 0));
+    lastReviewedCycle = Math.max(...h.history.map(r => r.week != null ? r.week : -1));
   }
   
   let isLocked = currentCycle <= lastReviewedCycle;
   let daysLeft = 0;
   
   if(isLocked){
-    let daysRequired = (lastReviewedCycle + 1) * 7;
-    daysLeft = daysRequired - daysElapsed;
+    let nextMilestoneDay = (lastReviewedCycle + 1) * 7;
+    daysLeft = nextMilestoneDay - daysElapsed;
   }
   
   let assessCard = $('stageAssessmentCard');
@@ -614,20 +694,37 @@ function saveWeeklyReview(){
     if(selStage){
       h.stage=selStage;
       h.history=h.history||[];
-      h.history.push({week: currentCycle, stage:selStage, date:todayStr()});
+      h.history.push({ week: currentCycle, stage:selStage, date:todayStr() });
     }
     saveData();toast('✅ Saved!');go('home');
   }catch(e){alert('Review error: '+e.message);}
 }
 
+function toggleSys(i,a){const h=getActive();if(h&&h.systems[i]){h.systems[i].active=a;saveData();toast(a?'ON':'OFF');}}
+
 // ===== SETTINGS =====
 function renderSettings(){
   $('userEmail').textContent = currentUser ? currentUser.email : 'Not logged in';
+  const h=getActive();
+  
   const shList = $('settingsHabitList');
   if(!habits.length) shList.innerHTML = '<div style="color:var(--muted);font-size:13px">Koi habit nahi.</div>';
   else shList.innerHTML = habits.map(h => `<div class="sys-item" style="align-items:center;"><div style="flex:1;font-weight:700;font-size:13px">${h.name}</div><button onclick="deleteHabit('${h.id}')" class="btn btn-sm" style="background:var(--danger);padding:6px 12px;font-size:12px;margin:0;">Delete</button></div>`).join('');
+  
+  if(!h){
+      $('sysHabitName').textContent='Koi habit nahi';
+      $('activeSystemsList').innerHTML='';
+  } else {
+      $('sysHabitName').textContent=h.name;
+      if(!h.systems||!h.systems.length){
+          $('activeSystemsList').innerHTML='<div style="color:var(--muted);font-size:13px">Koi system nahi.</div>';
+      } else {
+          $('activeSystemsList').innerHTML=h.systems.map((s,i)=>`<div class="sys-item"><input type="checkbox" ${s.active?'checked':''} onchange="toggleSys(${i},this.checked)" style="width:18px;height:18px;flex-shrink:0"><div style="flex:1"><div style="font-weight:700;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--muted)">${s.added ? fmtDateReadable(s.added) : 'Added newly'}</div></div></div>`).join('');
+      }
+  }
   updateSaveStatus();
 }
+
 function updateSaveStatus(){
   var el = $('lastSavedStatus'); if(!el) return;
   try{ el.innerHTML = (currentUser ? '<span style="color:var(--primary);">☁️ Cloud sync ON</span>' : '<span style="color:#f59e0b;">📴 Offline mode</span>'); }catch(e){}
