@@ -9,11 +9,9 @@
 <meta name="theme-color" content="#065f46">
 <title>🧠 Habit Maturity Tracker</title>
 
-<!-- PWA (Real App) Links -->
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="logo.svg">
 
-<!-- 🚀 THEME MEMORY SCRIPT (Flash Rokne Ke Liye) -->
 <script>
   if(localStorage.getItem('hm3_theme') === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -64,7 +62,16 @@
   
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;}
   
-  body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;max-width:720px;margin:0 auto;padding:16px;padding-bottom:90px;transition:background 0.3s ease, color 0.3s ease;}
+  /* 🚀 NATIVE APP FEEL FIX: user-select none */
+  body{
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.55;max-width:720px;margin:0 auto;
+    padding:16px;padding-bottom:90px;
+    transition:background 0.3s ease, color 0.3s ease;
+    -webkit-user-select: none; /* Safari/iOS */
+    user-select: none; /* Standard */
+  }
+  
   h1,h2,h3{font-weight:800}
   .hidden{display:none !important}
   .screen{animation:fadeIn .3s ease}
@@ -98,7 +105,15 @@
   .theme-btn.active{background:var(--primary);color:var(--btn-text);}
   
   label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px;color:var(--muted)}
-  input,select,textarea{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:14px;background:var(--card);color:var(--text);outline:none;transition:border 0.2s ease, background 0.2s ease, color 0.2s ease;}
+  
+  /* 🚀 INPUTS KO UNLOCK KIYA HAI TAki TYPE/COPY KAR SAKO */
+  input,select,textarea{
+    width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:14px;
+    background:var(--card);color:var(--text);outline:none;
+    transition:border 0.2s ease, background 0.2s ease, color 0.2s ease;
+    -webkit-user-select: auto; /* Typing ke liye copy/paste allow */
+    user-select: auto;
+  }
   input:focus,select:focus,textarea:focus{border-color:var(--primary);}
   textarea{min-height:60px;resize:vertical}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -157,14 +172,12 @@
 
 <div id="toast"></div>
 
-<!-- 🚀 SPLASH / LOADING SCREEN -->
 <div id="screen-loading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;width:100vw;position:fixed;top:0;left:0;background:var(--bg);z-index:9999;">
   <div style="font-size:72px;animation:pulse 1.5s infinite">🧠</div>
   <h1 style="color:var(--primary);margin-top:20px;font-size:24px;letter-spacing:0.5px">Habit Maturity</h1>
   <div class="spinner"></div>
 </div>
 
-<!-- LOGIN -->
 <div id="screen-login" class="screen hidden">
   <div class="topbar" style="justify-content:center"><h1>🧠 Habit Maturity</h1></div>
   <div class="card" style="text-align:center;margin-top:20px">
@@ -186,7 +199,6 @@
   </div>
 </div>
 
-<!-- HOME -->
 <div id="screen-home" class="screen hidden">
   <div class="topbar">
     <div><h1>🧠 Habit Maturity</h1><div class="sub">Ek habit complete, phir next</div></div>
@@ -207,7 +219,6 @@
   <div id="habitsList"></div>
 </div>
 
-<!-- SETUP -->
 <div id="screen-setup" class="screen hidden">
   <div class="topbar">
     <button class="btn-icon" onclick="go('home')" style="color:var(--text)">←</button>
@@ -248,20 +259,17 @@
   <button class="btn btn-accent" onclick="saveNewHabit()">💾 Habit Save Karo</button>
 </div>
 
-<!-- TODAY (DYNAMIC CHECK-IN) -->
 <div id="screen-today" class="screen hidden">
   <div class="topbar"><button class="btn-icon" onclick="go('home')" style="color:var(--text)">←</button><h1 style="flex:1;text-align:center;font-size:18px">✅ Check-In</h1><div style="width:32px"></div></div>
   <div id="todayNoHabit" class="card hidden"><div class="empty-state"><div style="font-size:48px">📝</div><div>Koi active habit nahi.</div><button class="btn" style="margin-top:10px" onclick="go('setup')">➕ Nayi Habit</button></div></div>
   <div id="dynamicFormsContainer"></div>
 </div>
 
-<!-- WEEKLY -->
 <div id="screen-weekly" class="screen hidden">
   <div class="topbar"><button class="btn-icon" onclick="go('home')" style="color:var(--text)">←</button><h1 style="flex:1;text-align:center;font-size:18px">📅 Weekly Review</h1><div style="width:32px"></div></div>
   <div id="weeklyNoHabit" class="card hidden"><div class="empty-state">Pehle habit banaein.</div></div>
   <div id="weeklyContent">
     
-    <!-- STATS -->
     <div class="card">
       <h2>📊 Stats</h2>
       <div class="stat-grid"><div class="stat-box"><div class="val" id="wConsistency">—</div><div class="lbl">Consistency</div></div><div class="stat-box"><div class="val" id="wReminderFree">—</div><div class="lbl">Reminder-Free</div></div><div class="stat-box"><div class="val" id="wEffort">—</div><div class="lbl">Avg Effort</div></div><div class="stat-box"><div class="val" id="wDisruptions">—</div><div class="lbl">Disruptions</div></div></div>
@@ -270,12 +278,9 @@
       <div id="wTrend" style="font-family:monospace;font-size:14px;line-height:1.6;color:var(--text)"></div>
     </div>
 
-    <!-- LOCK BANNER -->
     <div id="reviewCountdownBanner" class="info-box" style="text-align:center;font-size:15px;display:none;">
-      <!-- Countdown text -->
-    </div>
+      </div>
 
-    <!-- STAGE ASSESSMENT -->
     <div class="card" id="stageAssessmentCard">
       <h2>🎯 Stage Assessment</h2>
       <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Aapko lagta hai aap abhi kis stage pe hain? Be honest.</p>
@@ -283,7 +288,6 @@
       <div id="stageSelected" style="margin-top:10px;font-weight:700;color:var(--primary);display:none">Stage <span id="selStageNum">—</span> selected</div>
     </div>
 
-    <!-- REFLECTION -->
     <div class="card" id="reflectionCard">
       <h2>📝 Reflection</h2>
       <label>Is hafte ka sabse bada challenge?</label><textarea id="wChallenge" placeholder="Kya mushkil aaya..."></textarea>
@@ -293,7 +297,6 @@
   </div>
 </div>
 
-<!-- SETTINGS -->
 <div id="screen-settings" class="screen hidden">
   <div class="topbar"><button class="btn-icon" onclick="go('home')" style="color:var(--text)">←</button><h1 style="flex:1;text-align:center;font-size:18px">⚙️ Settings</h1><div style="width:32px"></div></div>
   <div class="card">
@@ -335,7 +338,6 @@
   </div>
 </div>
 
-<!-- 🚀 YOUTUBE-STYLE SVG BOTTOM NAV -->
 <div class="bottom-nav">
   <button class="nav-btn active" onclick="go('home')">
     <div class="icon-container">
@@ -371,8 +373,16 @@
 </div>
 
 <script>
-// ===== ERROR CATCHER =====
-window.onerror = function(msg, url, line){ alert('JS Error: ' + msg + ' (line ' + line + ')'); };
+// 🚀 BUG FIX 1 (Consistency): alert ki jagah console.error tak ki app freeze na ho
+window.onerror = function(msg, url, line){ console.error('JS Error: ' + msg + ' (line ' + line + ')'); };
+
+// 🚀 SECURITY BUG FIX (XSS): Sanitizer function
+function escapeHTML(str) {
+  if(!str) return '';
+  return String(str).replace(/[&<>"']/g, function(m) {
+    return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m];
+  });
+}
 
 // ===== FIREBASE CONFIG =====
 const firebaseConfig = {
@@ -538,7 +548,8 @@ function renderHome(){
   if(!h){
     $('activeHabitName').textContent='Koi habit nahi'; $('activeHabitStage').innerHTML=''; $('activeHabitProgress').style.width='0%'; $('activeConsistency').textContent='—';
   }else{
-    $('activeHabitName').textContent=h.name;
+    // 🚀 Escaped HTML to prevent XSS
+    $('activeHabitName').textContent = h.name;
     const clr={1:'var(--danger)', 2:'var(--accent)', 3:'#10b981', 4:'var(--primary)'};
     const lbl={1:'Stage 1: Initiation',2:'Stage 2: Stabilization',3:'Stage 3: Automaticity',4:'Stage 4: Identity'};
     $('activeHabitStage').innerHTML=`<span class="pill" style="background:var(--card); color:${clr[h.stage]||'var(--text)'}; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-weight:900; padding:4px 12px;">${lbl[h.stage]||'?'}</span>`;
@@ -549,19 +560,18 @@ function renderHome(){
   if(!habits.length){list.innerHTML='<div class="empty-state"><div style="font-size:48px">🌱</div><div>Pehli habit banaein!</div></div>';return;}
   list.innerHTML=habits.map(h=>{
     const isA=h.id===currentId; const s=calcStats(h,7); const pct=s.total?Math.round(s.done/s.total*100):0;
-    return `<div class="habit-item" onclick="switchH('${h.id}')" style="${isA?'border-color:var(--primary)':''}"><div style="font-size:28px">${isA?'🔥':'⚪'}</div><div class="info"><div class="name">${h.name}</div><div class="meta">${pct}% last 7d • ${h.logs?.length||0} logs</div></div><div class="stage-badge">S${h.stage||'?'}</div></div>`;
+    // 🚀 Escaped HTML to prevent XSS
+    return `<div class="habit-item" onclick="switchH('${h.id}')" style="${isA?'border-color:var(--primary)':''}"><div style="font-size:28px">${isA?'🔥':'⚪'}</div><div class="info"><div class="name">${escapeHTML(h.name)}</div><div class="meta">${pct}% last 7d • ${h.logs?.length||0} logs</div></div><div class="stage-badge">S${h.stage||'?'}</div></div>`;
   }).join('');
 }
 function switchH(id){currentId=id;saveData();go('home');toast('Switched');}
 
-// 🚀 INDIVIDUAL HABIT DELETE FUNCTION
 function deleteHabit(id){ 
   habits = habits.filter(h => h.id !== id); 
   if(currentId === id){ currentId = habits.length ? habits[0].id : null; } 
   saveData(); renderSettings(); toast('🗑️ Deleted'); 
 }
 
-// 🚀 TOGGLE ENABLE/DISABLE INDIVIDUAL DELETE BUTTON
 function toggleHabitDelete(id){
   const chk = document.getElementById('chkDel_' + id);
   const btn = document.getElementById('btnDel_' + id);
@@ -630,7 +640,7 @@ function calculatePrediction(){
   
   $('systemsCard').style.display='block'; 
   const sys = getSmartSystems($('sName').value, $('sCue').value, $('sType').value);
-  $('systemsList').innerHTML=sys.length?sys.map((s,i)=>`<div class="sys-item"><input type="checkbox" checked style="width:18px;height:18px;flex-shrink:0;cursor:pointer;accent-color:var(--primary);"><div style="flex:1"><div class="sys-txt" style="font-weight:700;font-size:13px">${s}</div></div></div>`).join(''):'';
+  $('systemsList').innerHTML=sys.length?sys.map((s,i)=>`<div class="sys-item"><input type="checkbox" checked style="width:18px;height:18px;flex-shrink:0;cursor:pointer;accent-color:var(--primary);"><div style="flex:1"><div class="sys-txt" style="font-weight:700;font-size:13px">${escapeHTML(s)}</div></div></div>`).join(''):'';
 }
 
 function saveNewHabit(){
@@ -671,7 +681,8 @@ function renderToday(){
   let container = $('dynamicFormsContainer');
   window.formState = {}; 
   
-  let html = `<div class="card"><div style="font-size:13px;color:var(--muted)">Active Habit</div><div style="font-size:18px;font-weight:900">${h.name}</div><div style="font-size:13px;color:var(--muted)">${h.cue||'No cue'}</div></div>`;
+  // 🚀 Escaped HTML to prevent XSS
+  let html = `<div class="card"><div style="font-size:13px;color:var(--muted)">Active Habit</div><div style="font-size:18px;font-weight:900">${escapeHTML(h.name)}</div><div style="font-size:13px;color:var(--muted)">${escapeHTML(h.cue||'No cue')}</div></div>`;
 
   let missedDates = getMissedDates(h);
   missedDates.forEach(dateStr => { html += buildFormHTML(dateStr, false, h); });
@@ -766,8 +777,10 @@ function saveDynamicLog(dateStr){
   }
   
   if(h.freq === 'event'){
-    log.opp = parseInt($(`eOpp_${dateStr}`)?.value)||0;
-    log.exec = parseInt($(`eExec_${dateStr}`)?.value)||0;
+    const oppVal = parseInt(document.getElementById(`eOpp_${dateStr}`)?.value);
+    const execVal = parseInt(document.getElementById(`eExec_${dateStr}`)?.value);
+    log.opp = isNaN(oppVal) ? 0 : oppVal;
+    log.exec = isNaN(execVal) ? 0 : execVal;
   }
   
   h.logs = h.logs.filter(l => l.date !== dateStr);
@@ -801,7 +814,7 @@ function renderWeekly(){
   let tP = todayStr().split('-');
   let tD = new Date(tP[0], tP[1]-1, tP[2]);
   
-  let daysElapsed = Math.floor((tD - cD) / 86400000);
+  let daysElapsed = Math.round((tD - cD) / 86400000);
   if(daysElapsed < 0) daysElapsed = 0;
   
   let currentCycle = Math.floor(daysElapsed / 7);
@@ -841,7 +854,8 @@ function saveWeeklyReview(){
     const h=getActive();if(!h)return;
     let cP = h.created.split('-'); let cD = new Date(cP[0], cP[1]-1, cP[2]);
     let tP = todayStr().split('-'); let tD = new Date(tP[0], tP[1]-1, tP[2]);
-    let daysElapsed = Math.floor((tD - cD) / 86400000);
+    
+    let daysElapsed = Math.round((tD - cD) / 86400000);
     if(daysElapsed < 0) daysElapsed = 0;
     let currentCycle = Math.floor(daysElapsed / 7);
 
@@ -851,7 +865,11 @@ function saveWeeklyReview(){
       h.history.push({ week: currentCycle, stage:selStage, date:todayStr() });
     }
     saveData();toast('✅ Saved!');go('home');
-  }catch(e){alert('Review error: '+e.message);}
+  }catch(e){
+    // 🚀 BUG FIX 2: Alert hatakar console aur toast lagaya
+    console.error(e); 
+    toast('Error: ' + e.message);
+  }
 }
 
 function toggleSys(i,a){const h=getActive();if(h&&h.systems[i]){h.systems[i].active=a;saveData();toast(a?'ON':'OFF');}}
@@ -864,10 +882,10 @@ function renderSettings(){
   const shList = $('settingsHabitList');
   if(!habits.length) shList.innerHTML = '<div style="color:var(--muted);font-size:13px">Koi habit nahi.</div>';
   else {
-    // 🚀 NEW SAFE DELETE HABIT UI IMPLEMENTED HERE 👇
+    // 🚀 Escaped HTML to prevent XSS
     shList.innerHTML = habits.map(h => `
       <div class="sys-item" style="align-items:center;">
-        <div style="flex:1;font-weight:700;font-size:13px">${h.name}</div>
+        <div style="flex:1;font-weight:700;font-size:13px">${escapeHTML(h.name)}</div>
         <input type="checkbox" id="chkDel_${h.id}" onchange="toggleHabitDelete('${h.id}')" style="width:20px;height:20px;margin-right:10px;flex-shrink:0;cursor:pointer;accent-color:var(--danger);">
         <button id="btnDel_${h.id}" onclick="deleteHabit('${h.id}')" class="btn btn-sm" style="background:var(--danger);color:#fff;padding:6px 12px;font-size:12px;margin:0;border:none;opacity:0.5;transition:0.2s ease;" disabled>Delete</button>
       </div>
@@ -882,7 +900,8 @@ function renderSettings(){
       if(!h.systems||!h.systems.length){
           $('activeSystemsList').innerHTML='<div style="color:var(--muted);font-size:13px">Koi system nahi.</div>';
       } else {
-          $('activeSystemsList').innerHTML=h.systems.map((s,i)=>`<div class="sys-item"><input type="checkbox" ${s.active?'checked':''} onchange="toggleSys(${i},this.checked)" style="width:18px;height:18px;flex-shrink:0;cursor:pointer;accent-color:var(--primary);"><div style="flex:1"><div style="font-weight:700;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--muted)">${s.added ? fmtDateReadable(s.added) : 'Added newly'}</div></div></div>`).join('');
+          // 🚀 Escaped HTML to prevent XSS
+          $('activeSystemsList').innerHTML=h.systems.map((s,i)=>`<div class="sys-item"><input type="checkbox" ${s.active?'checked':''} onchange="toggleSys(${i},this.checked)" style="width:18px;height:18px;flex-shrink:0;cursor:pointer;accent-color:var(--primary);"><div style="flex:1"><div style="font-weight:700;font-size:13px">${escapeHTML(s.name)}</div><div style="font-size:11px;color:var(--muted)">${s.added ? fmtDateReadable(s.added) : 'Added newly'}</div></div></div>`).join('');
       }
   }
   updateSaveStatus();
@@ -897,7 +916,11 @@ function exportData(){
     var blob = new Blob([JSON.stringify({habits:habits,currentId:currentId,exportedAt:new Date().toISOString(),version:'v5'},null,2)],{type:'application/json'});
     var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'habit-backup-'+todayStr()+'.json';
     document.body.appendChild(a); a.click(); document.body.removeChild(a); toast('Backup downloaded!');
-  }catch(e){ alert('Export error: '+e.message); }
+  }catch(e){ 
+    // 🚀 BUG FIX 2: Alert hatakar console aur toast lagaya
+    console.error(e); 
+    toast('Export error: ' + e.message); 
+  }
 }
 function importData(input){
   var reader = new FileReader();
