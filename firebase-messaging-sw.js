@@ -11,29 +11,5 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+// Firebase ka default system ab click aur background messages khud perfectly sambhal lega!
 const messaging = firebase.messaging();
-
-// 🚀 JAB NOTIFICATION PAR CLICK HO, TO KYA KRNA HAI:
-self.addEventListener('notificationclick', function(event) {
-  event.notification.close(); // Click karte hi notification hata do
-
-  // 🚀 MAGIC FIX: Hardcoded link ki jagah 'scope' use kiya hai.
-  // Isse 404 error nahi aayega aur PWA (Asli App) hi khulega!
-  const targetUrl = self.registration.scope;
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      // Agar app pehle se background mein open hai, to use saamne (focus) lao
-      for (let i = 0; i < clientList.length; i++) {
-        let client = clientList[i];
-        if (client.url.startsWith(targetUrl) && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      // Agar app poori tarah band hai, to PWA ko naye sire se kholo
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
-      }
-    })
-  );
-});
