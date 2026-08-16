@@ -13,30 +13,26 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// 🚀 1. FORCE UPDATE: नया कोड आते ही पुराने फँसे हुए कोड को हटा देगा
-self.addEventListener('install', function(event) {
-  self.skipWaiting();
-});
-self.addEventListener('activate', function(event) {
-  event.waitUntil(clients.claim());
-});
-
-// 🚀 2. CLICK LOGIC: नोटिफिकेशन पर क्लिक करते ही PWA (ऐप) खुलेगा, ब्राउज़र नहीं!
+// 🚀 JAB NOTIFICATION PAR CLICK HO, TO KYA KRNA HAI:
 self.addEventListener('notificationclick', function(event) {
-  event.notification.close(); // क्लिक करते ही नोटिफिकेशन हटा दो
-  
+  event.notification.close(); // Click karte hi notification hata do
+
+  // 🚀 MAGIC FIX: Hardcoded link ki jagah 'scope' use kiya hai.
+  // Isse 404 error nahi aayega aur PWA (Asli App) hi khulega!
+  const targetUrl = self.registration.scope;
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      // अगर ऐप बैकग्राउंड में पहले से खुला है, तो उसे सामने (Focus) ले आओ
-      for (var i = 0; i < clientList.length; i++) {
-        var client = clientList[i];
-        if (client.url.includes(self.registration.scope) && 'focus' in client) {
+      // Agar app pehle se background mein open hai, to use saamne (focus) lao
+      for (let i = 0; i < clientList.length; i++) {
+        let client = clientList[i];
+        if (client.url.startsWith(targetUrl) && 'focus' in client) {
           return client.focus();
         }
       }
-      // अगर ऐप पूरी तरह बंद है, तो उसे इंस्टॉल किए गए PWA मोड में खोलो
+      // Agar app poori tarah band hai, to PWA ko naye sire se kholo
       if (clients.openWindow) {
-        return clients.openWindow(self.registration.scope);
+        return clients.openWindow(targetUrl);
       }
     })
   );
