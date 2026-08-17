@@ -50,6 +50,16 @@
   label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px;color:var(--muted)}
   input,select,textarea{ width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:14px; background:var(--card);color:var(--text);outline:none; transition:border 0.2s ease, background 0.2s ease, color 0.2s ease; -webkit-user-select: auto; user-select: auto; }
   input:focus,select:focus,textarea:focus{border-color:var(--primary);} textarea{min-height:60px;resize:vertical}
+  
+  /* Toggle Switch Styles */
+  .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+  .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+  .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--primary); }
+  input:checked + .slider:before { transform: translateX(20px); }
+  
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px} @media(max-width:480px){.row{grid-template-columns:1fr}}
   .pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0} .pill{background:var(--primary-light);color:var(--primary);border:1px solid var(--border);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
   .bar{height:14px;background:var(--border);border-radius:999px;overflow:hidden;margin:8px 0} .bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),#059669);transition:width .6s ease}
@@ -202,8 +212,14 @@
   </div>
   <div class="card">
     <h2>🔔 Notifications</h2>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Daily check-in reminders ke liye notifications allow karein.</p>
-    <button class="btn btn-outline" id="btnEnableNotif" onclick="enableNotifications()">🔔 Enable Notifications</button>
+    <div class="toggle-row">
+      <span style="font-size:14px; font-weight: 600;">Enable Notifications</span>
+      <label class="switch">
+        <input type="checkbox" id="notifToggle" onchange="toggleNotifications(this)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:10px">Daily check-in reminders ke liye switch on karein.</p>
   </div>
   <div class="card">
     <h2>🗑️ Manage Habits</h2>
@@ -398,7 +414,7 @@ function buildFormHTML(dateStr, isToday, h) {
   return `<div class="card" style="${borderStyle}"><h2>${title}</h2><div class="log-btns"><button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','yes')">✅ Haan</button><button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','partial')">⚡ Thoda</button><button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','no')">❌ Nahi</button></div><div id="logDetails_${dateStr}" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;"><label>2. Reminder ke bina yaad aaya?</label><select id="tReminder_${dateStr}"><option value="no">Haan, automatic tha</option><option value="slight">Thoda sochna pada</option><option value="yes">Nahi, reminder dekhna pada</option></select><label>3. Effort level (1=easy, 10=hard)</label><input type="range" id="tEffort_${dateStr}" min="1" max="10" value="5" oninput="$('effortVal_${dateStr}').textContent=this.value"><div id="effortVal_${dateStr}" style="text-align:center;font-weight:900;color:var(--accent);font-size:18px">5</div><label>4. Us din ka context?</label><select id="tContext_${dateStr}"><option value="normal">🟢 Normal routine day</option><option value="weekend">🟡 Weekend / holiday</option><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option></select><label>5. Karne ke baad kaisa laga?</label><select id="tEnjoy_${dateStr}"><option value="5">😊 Bahut achha / energized</option><option value="4">🙂 Achha laga</option><option value="3">😐 Theek thak</option><option value="2">😕 Thoda boring</option><option value="1">😞 Acha nahi laga</option></select><label>Notes (optional)</label><textarea id="tNotes_${dateStr}" placeholder="Kuch special hua tha..."></textarea>${eventHTML}<button class="btn" style="margin-top:12px" onclick="saveDynamicLog('${dateStr}')">💾 ${isToday?'Aaj ka ':''}Log Save</button></div><div id="missedLogDetails_${dateStr}" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;"><label>2. Us din ka context? (Kyun miss hua?)</label><select id="tMissedContext_${dateStr}"><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option><option value="normal">🟢 Normal busy day / Bhool gaya</option></select><label>Notes (optional)</label><textarea id="tMissedNotes_${dateStr}" placeholder="Kyun miss hua..."></textarea><button class="btn" style="margin-top:12px;background:var(--danger);color:#fff;" onclick="saveDynamicLog('${dateStr}')">💾 Save Missed Log</button></div></div>`;
 }
 
-function calcEDyn(dStr){ const o = parseInt($(`eOpp_${dStr}`).value)||0; const e = parseInt($(`eExec_${dStr}`).value)||0; $(`eRate_${dStr}`).textContent = (o ? Math.round(Math.min(e,o)/o*100) : 0) + '%'; }
+function calcEDyn(dStr){ const o = parseInt($(`eOpp_${dateStr}`).value)||0; const e = parseInt($(`eExec_${dateStr}`).value)||0; $(`eRate_${dStr}`).textContent = (o ? Math.round(Math.min(e,o)/o*100) : 0) + '%'; }
 function selectDynamicPerf(btn, dateStr, val){ window.formState[dateStr] = val; document.querySelectorAll(`.perf-btn-${dateStr}`).forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); if(val === 'no'){ $(`logDetails_${dateStr}`).classList.add('hidden'); $(`missedLogDetails_${dateStr}`).classList.remove('hidden'); } else { $(`logDetails_${dateStr}`).classList.remove('hidden'); $(`missedLogDetails_${dateStr}`).classList.add('hidden'); } }
 
 function saveDynamicLog(dateStr){
@@ -445,6 +461,15 @@ function saveWeeklyReview(){
 
 function toggleSys(i,a){const h=getActive();if(h&&h.systems[i]){h.systems[i].active=a;saveData();toast(a?'ON':'OFF');}}
 
+function toggleNotifications(checkbox) {
+  if (checkbox.checked) {
+      enableNotifications();
+  } else {
+      toast("Notifications manually disable karne ke liye browser settings mein jaein.");
+      checkbox.checked = true; // Prevents un-toggling easily without browser intervention
+  }
+}
+
 function enableNotifications() {
   if(!messaging) { toast("Notifications yahan supported nahi hai."); return; }
   Notification.requestPermission().then((permission) => {
@@ -471,11 +496,10 @@ function enableNotifications() {
           console.log('FCM Token:', currentToken);
           if(currentUser && db) { db.collection('users').doc(currentUser.uid).set({ fcmToken: currentToken }, {merge: true}); }
           toast("✅ Notifications ON ho gaye!");
-          $('btnEnableNotif').textContent = "✅ Notifications Enabled";
-          $('btnEnableNotif').disabled = true;
+          $('notifToggle').checked = true;
         } else { toast("Token nahi mila."); }
-      }).catch((err) => { console.error('Token error: ', err); toast("❌ Error setting up notifications."); });
-    } else { toast("❌ Notifications block kar diye gaye."); }
+      }).catch((err) => { console.error('Token error: ', err); toast("❌ Error setting up notifications."); $('notifToggle').checked = false; });
+    } else { toast("❌ Notifications block kar diye gaye."); $('notifToggle').checked = false; }
   });
 }
 
@@ -492,18 +516,14 @@ function renderSettings(){
   }
   updateSaveStatus();
 
-  // 🚀 NEW FIX: Notification Button State Persist (Check every time settings open)
-  if (window.Notification) {
-      const btn = $('btnEnableNotif');
-      if (btn) {
-          if (Notification.permission === 'granted') {
-              btn.textContent = "✅ Notifications Enabled";
-              btn.disabled = true;
-          } else {
-              btn.textContent = "🔔 Enable Notifications";
-              btn.disabled = false;
-          }
-      }
+  // Sync Toggle state
+  const toggle = $('notifToggle');
+  if (toggle) {
+    if (window.Notification && Notification.permission === 'granted') {
+      toggle.checked = true;
+    } else {
+      toggle.checked = false;
+    }
   }
 }
 
@@ -513,3 +533,4 @@ function importData(input){ var reader = new FileReader(); reader.onload = funct
 </script>
 </body>
 </html>
+
