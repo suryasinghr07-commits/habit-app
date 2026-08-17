@@ -461,12 +461,30 @@ function saveWeeklyReview(){
 
 function toggleSys(i,a){const h=getActive();if(h&&h.systems[i]){h.systems[i].active=a;saveData();toast(a?'ON':'OFF');}}
 
+// 🚀 FIXED: Smart Toggle Logic
 function toggleNotifications(checkbox) {
   if (checkbox.checked) {
       enableNotifications();
   } else {
-      toast("Notifications manually disable karne ke liye browser settings mein jaein.");
-      checkbox.checked = true; // Prevents un-toggling easily without browser intervention
+      disableNotificationsInDb();
+  }
+}
+
+// 🛡️ Database Firewall Logic (Fixed for Offline Mode)
+function disableNotificationsInDb() {
+  // Pehle local system mein update karo (Offline users ke liye zaruri hai)
+  toast("⏳ Disabling notifications...");
+  localStorage.setItem('hm3_notif', 'false'); 
+  $('notifToggle').checked = false;
+  toast("✅ Notifications disabled!");
+
+  // Agar user logged in hai, tabhi Firebase se token delete karo
+  if (currentUser && db) {
+      db.collection('users').doc(currentUser.uid).update({
+          fcmToken: firebase.firestore.FieldValue.delete()
+      }).catch(err => {
+          console.error("Error disabling in DB:", err);
+      });
   }
 }
 
@@ -496,10 +514,15 @@ function enableNotifications() {
           console.log('FCM Token:', currentToken);
           if(currentUser && db) { db.collection('users').doc(currentUser.uid).set({ fcmToken: currentToken }, {merge: true}); }
           toast("✅ Notifications ON ho gaye!");
+          localStorage.setItem('hm3_notif', 'true'); // Local memory update
           $('notifToggle').checked = true;
         } else { toast("Token nahi mila."); }
-      }).catch((err) => { console.error('Token error: ', err); toast("❌ Error setting up notifications."); $('notifToggle').checked = false; });
-    } else { toast("❌ Notifications block kar diye gaye."); $('notifToggle').checked = false; }
+      }).catch((err) => { console.error('Token error: ', err); toast("❌ Error setting up notifications."); $('notifToggle').checked = false; localStorage.setItem('hm3_notif', 'false'); });
+    } else { 
+        toast("❌ Notifications block hain. Browser settings se allow karein."); 
+        $('notifToggle').checked = false; 
+        localStorage.setItem('hm3_notif', 'false');
+    }
   });
 }
 
@@ -516,10 +539,10 @@ function renderSettings(){
   }
   updateSaveStatus();
 
-  // Sync Toggle state
+  // 🧠 Smart Toggle UI Sync
   const toggle = $('notifToggle');
   if (toggle) {
-    if (window.Notification && Notification.permission === 'granted') {
+    if (window.Notification && Notification.permission === 'granted' && localStorage.getItem('hm3_notif') !== 'false') {
       toggle.checked = true;
     } else {
       toggle.checked = false;
