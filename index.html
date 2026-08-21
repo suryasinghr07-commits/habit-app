@@ -300,11 +300,22 @@ function hideSplashScreen(){
   if(loader && !loader.classList.contains('hidden')){ loader.style.opacity = '0'; setTimeout(function(){ loader.classList.add('hidden'); loader.style.display = 'none'; }, 400); }
 }
 
+// 🚀 NEW: Deep Linking Check Function
+function checkDeepLink() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.get('screen') === 'weekly') {
+    // URL se '?screen=weekly' hata do taaki refresh par wapas na khule
+    window.history.replaceState({}, document.title, window.location.pathname);
+    // Thoda sa wait karke seedha Weekly Review page khol do
+    setTimeout(() => go('weekly'), 300);
+  }
+}
+
 function loginUser(){ var e = $('loginEmail').value.trim(), p = $('loginPassword').value; if(!e || !p) return; auth.signInWithEmailAndPassword(e, p).then(()=>$('loginError').style.display='none').catch(e=>showLoginError(e.message)); }
 function signupUser(){ var e = $('loginEmail').value.trim(), p = $('loginPassword').value; if(!e || !p || p.length<6) return; auth.createUserWithEmailAndPassword(e, p).then(()=>showLoginError('Account bana diya! Ab login karein.')).catch(e=>showLoginError(e.message)); }
 function logoutUser(){ auth.signOut().then(()=>{ localStorage.removeItem('hm3_habits'); localStorage.removeItem('hm3_current'); habits=[]; currentId=null; go('login'); toast('Logged out'); }); }
 function showLoginError(msg){ var el = $('loginError'); el.textContent = msg; el.style.display = 'block'; }
-function skipLogin(){ $('screen-login').classList.add('hidden'); $('screen-home').classList.remove('hidden'); document.querySelector('.bottom-nav').style.display='flex'; try{ habits=JSON.parse(localStorage.getItem('hm3_habits')||'[]'); currentId=localStorage.getItem('hm3_current')||null; }catch(e){} renderHome(); updateSaveStatus(); hideSplashScreen(); toast('Offline mode ON'); }
+function skipLogin(){ $('screen-login').classList.add('hidden'); $('screen-home').classList.remove('hidden'); document.querySelector('.bottom-nav').style.display='flex'; try{ habits=JSON.parse(localStorage.getItem('hm3_habits')||'[]'); currentId=localStorage.getItem('hm3_current')||null; }catch(e){} renderHome(); updateSaveStatus(); hideSplashScreen(); toast('Offline mode ON'); checkDeepLink(); }
 
 let habits=[], currentId=null, selStage=null;
 window.formState = {}; window.editingToday = false;
@@ -317,7 +328,7 @@ function setTheme(theme) {
 document.addEventListener('DOMContentLoaded', function(){
   let savedTheme = localStorage.getItem('hm3_theme'); if(savedTheme === 'dark') { setTheme('dark'); } else { setTheme('light'); }
   let localData = localStorage.getItem('hm3_habits');
-  if(localData){ try{ habits=JSON.parse(localData); currentId=localStorage.getItem('hm3_current')||null; }catch(e){} $('screen-login').classList.add('hidden'); $('screen-home').classList.remove('hidden'); document.querySelector('.bottom-nav').style.display='flex'; renderHome(); updateSaveStatus(); setTimeout(hideSplashScreen, 300); } 
+  if(localData){ try{ habits=JSON.parse(localData); currentId=localStorage.getItem('hm3_current')||null; }catch(e){} $('screen-login').classList.add('hidden'); $('screen-home').classList.remove('hidden'); document.querySelector('.bottom-nav').style.display='flex'; renderHome(); updateSaveStatus(); setTimeout(hideSplashScreen, 300); checkDeepLink(); } 
   else if (!isFirebaseReady) { setTimeout(hideSplashScreen, 300); $('screen-login').classList.remove('hidden'); }
   
   var chk = document.getElementById('chkDelete'); var btn = document.getElementById('btnFinalDelete');
@@ -332,7 +343,7 @@ if(isFirebaseReady && auth){
   });
 }
 
-function loadFromFirestore(){ if(!currentUser || !db) return; db.collection('users').doc(currentUser.uid).get().then(function(doc){ if(doc.exists){ var data = doc.data(); habits = data.habits || []; currentId = data.currentId || null; localStorage.setItem('hm3_habits', JSON.stringify(habits)); localStorage.setItem('hm3_current', currentId || ''); renderHome(); } else if (habits.length > 0) { saveData(); } }).catch(e => console.error('Sync error:', e)); }
+function loadFromFirestore(){ if(!currentUser || !db) return; db.collection('users').doc(currentUser.uid).get().then(function(doc){ if(doc.exists){ var data = doc.data(); habits = data.habits || []; currentId = data.currentId || null; localStorage.setItem('hm3_habits', JSON.stringify(habits)); localStorage.setItem('hm3_current', currentId || ''); renderHome(); checkDeepLink(); } else if (habits.length > 0) { saveData(); } }).catch(e => console.error('Sync error:', e)); }
 function $(id){return document.getElementById(id)}
 function toast(msg,ms=2600){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',ms);}
 function saveData(){ try{ localStorage.setItem('hm3_habits',JSON.stringify(habits)); localStorage.setItem('hm3_current',currentId||''); updateSaveStatus(); if(isFirebaseReady && currentUser && db){ db.collection('users').doc(currentUser.uid).set({habits: habits, currentId: currentId || '', updatedAt: firebase.firestore.FieldValue.serverTimestamp()},{merge:true}); } }catch(e){} }
@@ -461,7 +472,6 @@ function saveWeeklyReview(){
 
 function toggleSys(i,a){const h=getActive();if(h&&h.systems[i]){h.systems[i].active=a;saveData();toast(a?'ON':'OFF');}}
 
-// 🚀 FIXED: Smart Toggle Logic
 function toggleNotifications(checkbox) {
   if (checkbox.checked) {
       enableNotifications();
@@ -470,15 +480,12 @@ function toggleNotifications(checkbox) {
   }
 }
 
-// 🛡️ Database Firewall Logic (Fixed for Offline Mode)
 function disableNotificationsInDb() {
-  // Pehle local system mein update karo (Offline users ke liye zaruri hai)
   toast("⏳ Disabling notifications...");
   localStorage.setItem('hm3_notif', 'false'); 
   $('notifToggle').checked = false;
   toast("✅ Notifications disabled!");
 
-  // Agar user logged in hai, tabhi Firebase se token delete karo
   if (currentUser && db) {
       db.collection('users').doc(currentUser.uid).update({
           fcmToken: firebase.firestore.FieldValue.delete()
@@ -514,7 +521,7 @@ function enableNotifications() {
           console.log('FCM Token:', currentToken);
           if(currentUser && db) { db.collection('users').doc(currentUser.uid).set({ fcmToken: currentToken }, {merge: true}); }
           toast("✅ Notifications ON ho gaye!");
-          localStorage.setItem('hm3_notif', 'true'); // Local memory update
+          localStorage.setItem('hm3_notif', 'true'); 
           $('notifToggle').checked = true;
         } else { toast("Token nahi mila."); }
       }).catch((err) => { console.error('Token error: ', err); toast("❌ Error setting up notifications."); $('notifToggle').checked = false; localStorage.setItem('hm3_notif', 'false'); });
@@ -539,7 +546,6 @@ function renderSettings(){
   }
   updateSaveStatus();
 
-  // 🧠 Smart Toggle UI Sync
   const toggle = $('notifToggle');
   if (toggle) {
     if (window.Notification && Notification.permission === 'granted' && localStorage.getItem('hm3_notif') !== 'false') {
@@ -556,4 +562,3 @@ function importData(input){ var reader = new FileReader(); reader.onload = funct
 </script>
 </body>
 </html>
-
