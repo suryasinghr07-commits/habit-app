@@ -65,11 +65,23 @@
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px} @media(max-width:480px){.row{grid-template-columns:1fr}}
   .pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0} .pill{background:var(--primary-light);color:var(--primary);border:1px solid var(--border);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
   
-  /* 🔥 7-Day Pulse UI Styles */
-  .pulse-container { display: flex; gap: 8px; align-items: center; justify-content: flex-start; margin: 14px 0 10px 0; }
-  .spark { width: 16px; height: 16px; border-radius: 50%; background: #333333; transition: 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+  /* 🔥 Enhanced 7-Day Pulse UI Styles with Labels & Tooltip */
+  .pulse-wrapper { position: relative; margin: 24px 0 10px 0; }
+  .pulse-tooltip { position: absolute; top: -55px; left: 0; background: #ffffff; color: var(--text); padding: 8px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; z-index: 10; animation: fadeIn 0.4s ease; border: 2px solid var(--primary); }
+  .pulse-tooltip::after { content: ''; position: absolute; bottom: -6px; left: 24px; border-width: 6px 6px 0; border-style: solid; border-color: var(--primary) transparent transparent transparent; }
+  .pulse-tooltip .close-btn { cursor: pointer; opacity: 0.6; font-size: 18px; padding: 0 4px; color: var(--muted); }
+  .pulse-tooltip .close-btn:hover { opacity: 1; color: var(--danger); }
+  .pulse-container { display: flex; gap: 12px; align-items: flex-start; justify-content: flex-start; }
+  .spark-col { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; max-width: 38px; }
+  
+  .spark { width: 16px; height: 16px; border-radius: 50%; background: #333333; transition: 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4); }
   .spark.full { background: #25D366; box-shadow: 0 0 10px rgba(37, 211, 102, 0.6); border: 1px solid #1da851; }
   .spark.partial { background: linear-gradient(90deg, #ea580c 50%, #333333 50%); box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
+  .spark.ghost { background: transparent; border: 1.5px dashed rgba(255,255,255,0.4); box-shadow: none; opacity: 0.6; } /* Ghost State */
+  [data-theme="light"] .spark.ghost { border-color: rgba(0,0,0,0.2); }
+  
+  .spark-lbl { font-size: 10px; color: rgba(255,255,255,0.6); font-weight: 700; }
+  .spark-lbl.aaj { color: #ffffff; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 6px; font-size: 9px; }
   
   .stage-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0} @media(max-width:480px){.stage-grid{grid-template-columns:1fr}}
   .stage-card{padding:12px;border:2px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:0.2s ease;} .stage-card.active{border-color:var(--primary);background:var(--primary-light)}
@@ -126,7 +138,7 @@
     <div id="activeHabitName" style="font-size:20px;font-weight:900;margin:4px 0">Koi habit nahi</div>
     <div id="activeHabitStage" class="pills"></div>
     
-    <!-- 🔥 7-Day Pulse Energy Sparks -->
+    <!-- 🔥 Smart 7-Day Pulse Energy Sparks Render Yahan Hoga -->
     <div id="activeHabitSparks"></div>
 
     <div style="font-size:12px;opacity:.9;margin-top:4px">Consistency: <span id="activeConsistency">—</span></div>
@@ -161,7 +173,6 @@
       <div class="stat-box"><div class="val" id="pMax">—</div><div class="lbl">Max (din)</div></div>
       <div class="stat-box"><div class="val" id="pWeeks">—</div><div class="lbl">Likely (hafte)</div></div>
     </div>
-    <!-- 🔄 Triggering the Artificial Delay (Labor Illusion) -->
     <button class="btn" onclick="calculatePredictionWithIllusion()">🔮 Estimate Calculate</button>
   </div>
   <div class="card" id="systemsCard" style="display:none">
@@ -177,7 +188,6 @@
   <div id="dynamicFormsContainer"></div>
 </div>
 
-<!-- ✅ Bug 3 Fixed: Weekly Screen UI -->
 <div id="screen-weekly" class="screen hidden">
   <div class="topbar"><button class="btn-icon" onclick="go('home')" style="color:var(--text)">←</button><h1 style="flex:1;text-align:center;font-size:18px">📅 Weekly Review</h1><div style="width:32px"></div></div>
   <div id="weeklyNoHabit" class="card hidden"><div class="empty-state">Pehle habit banaein.</div></div>
@@ -293,7 +303,6 @@ if (isFirebaseReady && typeof firebase !== 'undefined' && typeof firebase.messag
 function hideSplashScreen(){ var loader = $('screen-loading'); if(loader && !loader.classList.contains('hidden')){ loader.style.opacity = '0'; setTimeout(()=>loader.classList.add('hidden'), 400); } }
 function checkDeepLink() { const urlParams = new URLSearchParams(window.location.search); if(urlParams.get('screen') === 'weekly') { window.history.replaceState({}, document.title, window.location.pathname); setTimeout(() => go('weekly'), 300); } }
 
-// BUG 1 FIXED: Restored all auth/settings functions
 function loginUser(){ var e = $('loginEmail').value.trim(), p = $('loginPassword').value; if(!e || !p) return; auth.signInWithEmailAndPassword(e, p).then(()=>$('loginError').style.display='none').catch(e=>showLoginError(e.message)); }
 function signupUser(){ var e = $('loginEmail').value.trim(), p = $('loginPassword').value; if(!e || !p || p.length<6) return; auth.createUserWithEmailAndPassword(e, p).then(()=>showLoginError('Account bana diya! Ab login karein.')).catch(e=>showLoginError(e.message)); }
 function logoutUser(){ auth.signOut().then(()=>{ localStorage.removeItem('hm3_habits'); localStorage.removeItem('hm3_current'); habits=[]; currentId=null; go('login'); toast('Logged out'); }); }
@@ -302,15 +311,13 @@ function showLoginError(msg){ var el = $('loginError'); el.textContent = msg; el
 let habits=[], currentId=null, selStage=null;
 window.formState = {}; window.editingToday = false;
 
-// 🎁 Endowed Progress Effect
 function injectOnboardingHabit() {
   if (habits.length > 0) return;
   let d = new Date(); d.setDate(d.getDate() - 1); 
   let yesterday = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  
   let h = {
     id: genId(), name: "💧 Drink 1 Glass Water (Demo)", type: "health", complexity: "simple", cue: "Wake up", created: yesterday, stage: 1, 
-    logs: [{ date: yesterday, done: true, partial: false, reminder: false, effort: 1, ctx: 'normal', enjoy: 4, notes: '' }], systems: [], ready: false
+    logs: [{ date: yesterday, done: true, partial: false, reminder: false, effort: 1, ctx: 'normal', enjoy: 4, notes: '' }], systems: [], ready: false, tooltipDismissed: false
   };
   habits.push(h); currentId = h.id; saveData();
 }
@@ -354,8 +361,15 @@ function genId(){return 'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7
 function todayStr(){ let d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function fmtDateReadable(dStr){ let p = dStr.split('-'); return new Date(p[0], p[1]-1, p[2]).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}); }
 
-// BUG 3 FIXED: Added 'weekly' and 'settings' renders back into go() function
 function go(name){ document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); $(`screen-${name}`).classList.remove('hidden'); document.querySelector('.bottom-nav').style.display='flex'; document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); const map={home:0,today:1,weekly:2,settings:3}; if(map[name]!=null)document.querySelectorAll('.nav-btn')[map[name]].classList.add('active'); if(name==='home')renderHome(); if(name==='today')renderToday(); if(name==='weekly')renderWeekly(); if(name==='settings')renderSettings(); window.scrollTo(0,0); }
+
+// 💡 Tooltip Dismiss Logic
+function dismissTooltip(hId) {
+    const h = habits.find(x => x.id === hId);
+    if(h) { h.tooltipDismissed = true; saveData(); }
+    const tt = document.getElementById('pulseTooltip');
+    if(tt) tt.style.display = 'none';
+}
 
 function renderHome(){
   const h=getActive();
@@ -365,24 +379,50 @@ function renderHome(){
     const clr={1:'var(--danger)', 2:'var(--accent)', 3:'#10b981', 4:'var(--primary)'}; const lbl={1:'Stage 1: Initiation',2:'Stage 2: Stabilization',3:'Stage 3: Automaticity',4:'Stage 4: Identity'};
     $('activeHabitStage').innerHTML=`<span class="pill" style="background:var(--card); color:${clr[h.stage]||'var(--text)'}; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-weight:900; padding:4px 12px;">${lbl[h.stage]||'?'}</span>`;
     
-    // 🔋 Zeigarnik Effect & Color Psychology Render Loop
-    let sparksHTML = '<div class="pulse-container">';
+    // 🔥 Advanced 7-Day Pulse (Dynamic Labels & Ghost State)
+    let sparksHTML = '<div class="pulse-wrapper">';
+    
+    // First-Time Tooltip Logic
+    let cP = h.created.split('-'); let cD = new Date(cP[0], cP[1]-1, cP[2]);
+    let tP = todayStr().split('-'); let tD = new Date(tP[0], tP[1]-1, tP[2]);
+    let daysElapsed = Math.round((tD - cD) / 86400000);
+    
+    if (!h.tooltipDismissed && daysElapsed <= 3) {
+        sparksHTML += `<div class="pulse-tooltip" id="pulseTooltip">💡 Aapka 7 din ka rhythm yahan banega. Aaj ka pehla green spark jalaiye! <span class="close-btn" onclick="dismissTooltip('${h.id}')">×</span></div>`;
+    }
+
+    sparksHTML += '<div class="pulse-container">';
     let doneCount = 0;
+    const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    
     for(let i=6; i>=0; i--) {
         let d = new Date(); d.setDate(d.getDate() - i);
         let dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-        let log = h.logs.find(l => l.date === dStr);
-        let stateClass = ''; // Default is State 3 (Gray/Empty)
-        if(log && log.done) { stateClass = 'full'; doneCount++; } 
-        else if(log && log.partial) { stateClass = 'partial'; }
-        sparksHTML += `<div class="spark ${stateClass}"></div>`;
+        
+        let lblText = (i === 0) ? 'Aaj' : dayNames[d.getDay()];
+        let lblClass = (i === 0) ? 'spark-lbl aaj' : 'spark-lbl';
+        
+        let stateClass = 'ghost'; // Default is State 4 (Ghost) for New Users
+        
+        // Agar date habit banne ke baad ki hai, tab actual result dikhao
+        if (dStr >= h.created) {
+            stateClass = ''; // Default to Solid Gray (Missed)
+            let log = h.logs.find(l => l.date === dStr);
+            if(log && log.done) { stateClass = 'full'; doneCount++; } 
+            else if(log && log.partial) { stateClass = 'partial'; }
+        }
+        
+        sparksHTML += `<div class="spark-col"><div class="spark ${stateClass}"></div><div class="${lblClass}">${lblText}</div></div>`;
     }
-    sparksHTML += '</div>';
+    sparksHTML += '</div></div>';
     $('activeHabitSparks').innerHTML = sparksHTML; 
     
-    const pct= Math.round(doneCount/7*100); 
-    $('activeConsistency').textContent = pct + '% (last 7d)';
+    let activeDays = daysElapsed + 1;
+    if (activeDays > 7) activeDays = 7;
+    const pct= activeDays > 0 ? Math.round(doneCount/activeDays*100) : 0; 
+    $('activeConsistency').textContent = pct + '% (last ' + activeDays + 'd)';
   }
+  
   const list=$('habitsList');
   if(!habits.length){list.innerHTML='<div class="empty-state"><div style="font-size:48px">🌱</div><div>Pehli habit banaein!</div></div>';return;}
   list.innerHTML=habits.map(h=>{
@@ -407,7 +447,6 @@ function getSmartSystems(name, cue, type){
   return systems;
 }
 
-// ⏳ Labor Illusion (Artificial Delay)
 function calculatePredictionWithIllusion(){
   $('screen-loading').classList.remove('hidden');
   $('loading-emoji').textContent = "🤖";
@@ -425,12 +464,11 @@ function calculatePredictionWithIllusion(){
   }, 1800); 
 }
 
-// BUG 2 FIXED: saveNewHabit restored fully with all fields
 function saveNewHabit(){
   const name=$('sName').value.trim(); if(!name){toast('Naam likhein');return;}
   const h={
     id: genId(), name: name, type: $('sType').value, complexity: $('sComplexity').value, cue: $('sCue').value,
-    created: todayStr(), stage: 1, logs: [], systems: [], maint: {active:false,logs:[]}, ready: false
+    created: todayStr(), stage: 1, logs: [], systems: [], maint: {active:false,logs:[]}, ready: false, tooltipDismissed: false
   };
   document.querySelectorAll('#systemsList input:checked').forEach(cb=>{ 
     const txt = cb.closest('.sys-item').querySelector('.sys-txt').textContent; 
@@ -471,7 +509,6 @@ function saveDynamicLog(dateStr){
   
   h.logs = h.logs.filter(l => l.date !== dateStr); h.logs.push(log); saveData(); if(dateStr === todayStr()) window.editingToday = false; 
 
-  // 🎉 Variable Reward Check (Only if saving Today's log as 'yes')
   if(dateStr === todayStr() && val === 'yes') {
     let streak = 0;
     for(let i=0; i<=6; i++) {
@@ -530,10 +567,9 @@ function renderSettings(){
 }
 
 function updateSaveStatus(){ var el = $('lastSavedStatus'); if(!el) return; try{ el.innerHTML = (currentUser ? '<span style="color:var(--primary);">☁️ Cloud sync ON</span>' : '<span style="color:#f59e0b;">📴 Offline mode</span>'); }catch(e){} }
-
-// EXPORT / IMPORT BUG FIXED
 function exportData(){ try{ var blob = new Blob([JSON.stringify({habits:habits,currentId:currentId,exportedAt:new Date().toISOString(),version:'v5'},null,2)],{type:'application/json'}); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'habit-backup-'+todayStr()+'.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); toast('Backup downloaded!'); }catch(e){ console.error(e); toast('Export error: ' + e.message); } }
 function importData(input){ var reader = new FileReader(); reader.onload = function(e){ var data = JSON.parse(e.target.result); if(data.habits) habits = data.habits; if(data.currentId) currentId = data.currentId; saveData(); toast('Restored!'); go('home'); }; reader.readAsText(input.files[0]); input.value = ''; }
 </script>
 </body>
 </html>
+
