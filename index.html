@@ -95,6 +95,14 @@
   #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;display:none;z-index:200}
   .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
   .info-box{background:var(--info-bg);border:1.5px solid var(--info-border);color:var(--info-text);border-radius:10px;padding:12px;font-size:13px;margin:10px 0;transition:0.3s ease;} .warn-box{background:var(--warn-bg);border:1.5px solid var(--warn-border);color:var(--warn-text);border-radius:10px;padding:12px;font-size:13px;margin:10px 0;transition:0.3s ease;} .divider{height:1px;background:var(--border);margin:14px 0}
+  
+  /* 🤖 Habit Expert Card UI */
+  .ai-coach-card { background: var(--info-bg); border: 1.5px solid var(--info-border); border-radius: 12px; padding: 14px; margin-top: 14px; animation: fadeIn 0.4s ease; display: none; }
+  .ai-coach-card.active { display: block; }
+  .ai-msg { font-size: 13.5px; color: var(--info-text); font-weight: 600; line-height: 1.5; margin-bottom: 10px; }
+  .ai-input-row { display: flex; gap: 8px; margin-top: 10px; }
+  .ai-input-row input { flex: 1; padding: 8px 12px; font-size: 13px; border-radius: 8px; border: 1.5px solid var(--info-border); }
+  .ai-input-row input:disabled, .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -134,9 +142,7 @@
     <div style="font-size:13px;opacity:.9">Aapka Active Habit</div>
     <div id="activeHabitName" style="font-size:20px;font-weight:900;margin:4px 0">Koi habit nahi</div>
     <div id="activeHabitStage" class="pills"></div>
-    
     <div id="activeHabitSparks"></div>
-
     <div style="font-size:12px;opacity:.9;margin-top:4px">Consistency: <span id="activeConsistency">—</span></div>
   </div>
   <div class="btn-group">
@@ -267,7 +273,7 @@
     <div class="icon-container"><svg class="svg-outline" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><svg class="svg-filled" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10zm0-12H5V5h14v2z"/></svg></div><span>Review</span>
   </button>
   <button class="nav-btn" onclick="go('settings')">
-    <div class="icon-container"><svg class="svg-outline" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><svg class="svg-filled" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg></div><span>Settings</span>
+    <div class="icon-container"><svg class="svg-outline" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><svg class="svg-filled" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg></div><span>Settings</span>
   </button>
 </div>
 
@@ -358,12 +364,7 @@ function fmtDateReadable(dStr){ let p = dStr.split('-'); return new Date(p[0], p
 
 function go(name){ document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); $(`screen-${name}`).classList.remove('hidden'); document.querySelector('.bottom-nav').style.display='flex'; document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); const map={home:0,today:1,weekly:2,settings:3}; if(map[name]!=null)document.querySelectorAll('.nav-btn')[map[name]].classList.add('active'); if(name==='home')renderHome(); if(name==='today')renderToday(); if(name==='weekly')renderWeekly(); if(name==='settings')renderSettings(); window.scrollTo(0,0); }
 
-function dismissTooltip(hId) {
-    const h = habits.find(x => x.id === hId);
-    if(h) { h.tooltipDismissed = true; saveData(); }
-    const tt = document.getElementById('pulseTooltip');
-    if(tt) tt.style.display = 'none';
-}
+function dismissTooltip(hId) { const h = habits.find(x => x.id === hId); if(h) { h.tooltipDismissed = true; saveData(); } const tt = document.getElementById('pulseTooltip'); if(tt) tt.style.display = 'none'; }
 
 function renderHome(){
   const h=getActive();
@@ -374,46 +375,25 @@ function renderHome(){
     $('activeHabitStage').innerHTML=`<span class="pill" style="background:var(--card); color:${clr[h.stage]||'var(--text)'}; border:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); font-weight:900; padding:4px 12px;">${lbl[h.stage]||'?'}</span>`;
     
     let sparksHTML = '<div class="pulse-wrapper">';
-    
-    let cP = h.created.split('-'); let cD = new Date(cP[0], cP[1]-1, cP[2]);
-    let tP = todayStr().split('-'); let tD = new Date(tP[0], tP[1]-1, tP[2]);
-    let daysElapsed = Math.round((tD - cD) / 86400000);
-    
-    if (!h.tooltipDismissed && daysElapsed <= 3) {
-        sparksHTML += `<div class="pulse-tooltip" id="pulseTooltip">💡 Aapka 7 din ka rhythm yahan banega. Aaj ka pehla green spark jalaiye! <span class="close-btn" onclick="dismissTooltip('${h.id}')">×</span></div>`;
-    }
+    let cP = h.created.split('-'); let cD = new Date(cP[0], cP[1]-1, cP[2]); let tP = todayStr().split('-'); let tD = new Date(tP[0], tP[1]-1, tP[2]); let daysElapsed = Math.round((tD - cD) / 86400000);
+    if (!h.tooltipDismissed && daysElapsed <= 3) { sparksHTML += `<div class="pulse-tooltip" id="pulseTooltip">💡 Aapka 7 din ka rhythm yahan banega. Aaj ka pehla green spark jalaiye! <span class="close-btn" onclick="dismissTooltip('${h.id}')">×</span></div>`; }
 
-    sparksHTML += '<div class="pulse-container">';
-    let doneCount = 0;
-    const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    
+    sparksHTML += '<div class="pulse-container">'; let doneCount = 0; const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     for(let i=6; i>=0; i--) {
-        let d = new Date(); d.setDate(d.getDate() - i);
-        let dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-        
-        let lblText = (i === 0) ? 'Aaj' : dayNames[d.getDay()];
-        let lblClass = (i === 0) ? 'spark-lbl aaj' : 'spark-lbl';
-        
+        let d = new Date(); d.setDate(d.getDate() - i); let dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        let lblText = (i === 0) ? 'Aaj' : dayNames[d.getDay()]; let lblClass = (i === 0) ? 'spark-lbl aaj' : 'spark-lbl';
         let stateClass = 'ghost'; 
-        
         if (dStr >= h.created) {
-            stateClass = ''; 
-            let log = h.logs.find(l => l.date === dStr);
-            if(log && log.done) { stateClass = 'full'; doneCount++; } 
-            else if(log && log.partial) { stateClass = 'partial'; }
+            stateClass = ''; let log = h.logs.find(l => l.date === dStr);
+            if(log && log.done) { stateClass = 'full'; doneCount++; } else if(log && log.partial) { stateClass = 'partial'; }
         }
-        
         sparksHTML += `<div class="spark-col"><div class="spark ${stateClass}"></div><div class="${lblClass}">${lblText}</div></div>`;
     }
-    sparksHTML += '</div></div>';
-    $('activeHabitSparks').innerHTML = sparksHTML; 
-    
-    let activeDays = daysElapsed + 1;
-    if (activeDays > 7) activeDays = 7;
+    sparksHTML += '</div></div>'; $('activeHabitSparks').innerHTML = sparksHTML; 
+    let activeDays = daysElapsed + 1; if (activeDays > 7) activeDays = 7;
     const pct= activeDays > 0 ? Math.round(doneCount/activeDays*100) : 0; 
     $('activeConsistency').textContent = pct + '% (last ' + activeDays + 'd)';
   }
-  
   const list=$('habitsList');
   if(!habits.length){list.innerHTML='<div class="empty-state"><div style="font-size:48px">🌱</div><div>Pehli habit banaein!</div></div>';return;}
   list.innerHTML=habits.map(h=>{
@@ -428,30 +408,21 @@ function toggleHabitDelete(id){ const chk = $('chkDel_' + id); const btn = $('bt
 
 function getSmartSystems(name, cue, type){
   const n = (name || '').toLowerCase(), c = (cue || '').toLowerCase(), combined = n + ' ' + c; let systems = [];
-  if(combined.includes('paani') || combined.includes('pani') || combined.includes('water') || combined.includes('hydrate')){ systems.push('Bedside glass + bottle raat ko bhar ke rakho'); systems.push('Paani ki bottle hamesha samne rakho'); } 
-  else if (combined.includes('apple') || combined.includes('fruit') || combined.includes('fal') || combined.includes('khana')) { systems.push('Raat ko hi apple / fal samne nikal kar rakh do'); systems.push('Dining table par pehle se plate ready rakho'); } 
-  else if (combined.includes('run') || combined.includes('jog') || combined.includes('gym') || combined.includes('exercise')) { systems.push('Raat ko shoes + socks bedside rakho'); systems.push('Workout clothes pehle se nikal kar rakho'); } 
-  else if (combined.includes('padhai') || combined.includes('book') || combined.includes('study') || combined.includes('read')) { systems.push('Book / notebook table par khula rakho'); systems.push('Padhai ke waqt phone doosre room mein rakho'); } 
-  else if (combined.includes('sleep') || combined.includes('sone') || combined.includes('bed')) { systems.push('Sone se 1 ghanta pehle screens band'); systems.push('Phone bistar se door charge par lagao'); } 
-  else if (combined.includes('phone') || combined.includes('screen') || combined.includes('social')) { systems.push('App blocker ya screen-timer set karo'); systems.push('Distracting notifications mute kar do'); }
-  else { if (type === 'health') { systems.push('Saman (shoes/fal/bottle) raat ko hi samne nikal kar rakh do'); systems.push('Health tracker app ya calendar par daily tick karo'); } else if (type === 'digital') { systems.push('App blocker ya screen-timer set karo'); systems.push('Distracting notifications mute kar do'); } else if (type === 'creative' || type === 'work') { systems.push('Kaam ki jagah ko saaf aur ready rakho'); systems.push('Pomodoro timer (25 min focus) ka use karo'); } else { systems.push('If-Then plan likho (Agar X hoga, toh main Y karunga)'); systems.push('Ekdum chhota shuru karo (2 minute rule)'); } }
+  if(combined.includes('paani') || combined.includes('pani')){ systems.push('Bedside glass + bottle raat ko bhar ke rakho'); } 
+  else if (combined.includes('book') || combined.includes('padhai')) { systems.push('Book table par khula rakho'); }
+  else { systems.push('If-Then plan likho'); }
   return systems;
 }
 
 function calculatePredictionWithIllusion(){
-  $('screen-loading').classList.remove('hidden');
-  $('loading-emoji').textContent = "🤖";
-  $('loading-text').textContent = "AI is analyzing your habit...";
-  $('screen-loading').style.opacity = '1';
-  
+  $('screen-loading').classList.remove('hidden'); $('loading-emoji').textContent = "🤖"; $('loading-text').textContent = "AI is analyzing..."; $('screen-loading').style.opacity = '1';
   setTimeout(() => {
     const c=$('sComplexity').value; let mn=18,lk=45,mx=90;
     if(c==='simple'){mn=14;lk=30;mx=55;}else if(c==='moderate'){mn=25;lk=55;mx=100;}else{mn=45;lk=90;mx=180;}
     $('pMin').textContent=mn+'d';$('pLikely').textContent=lk+'d';$('pMax').textContent=mx+'d';$('pWeeks').textContent=Math.round(lk/7)+'w';
     $('systemsCard').style.display='block'; const sys = getSmartSystems($('sName').value, $('sCue').value, $('sType').value);
     $('systemsList').innerHTML=sys.length?sys.map((s,i)=>`<div class="sys-item"><input type="checkbox" checked style="width:18px;height:18px;flex-shrink:0;cursor:pointer;accent-color:var(--primary);"><div style="flex:1"><div class="sys-txt" style="font-weight:700;font-size:13px">${escapeHTML(s)}</div></div></div>`).join(''):'';
-    hideSplashScreen();
-    setTimeout(() => { $('loading-emoji').textContent = "🧠"; $('loading-text').textContent = "Habit Maturity"; }, 500); 
+    hideSplashScreen(); setTimeout(() => { $('loading-emoji').textContent = "🧠"; $('loading-text').textContent = "Habit Maturity"; }, 500); 
   }, 1800); 
 }
 
@@ -470,25 +441,19 @@ function saveNewHabit(){
   toast('✅ Saved!'); go('home');
 }
 
-// 🐛 BUG FIXED: Smart Missed Dates Calculator (Ab habit ke day 1 se nahi, aaj se 14 din piche jayega)
 function getMissedDates(h) {
   let missed = []; if (!h.created) return missed;
-  
   let tP = todayStr().split('-'); let today = new Date(tP[0], tP[1]-1, tP[2]); today.setHours(0,0,0,0);
   let cP = h.created.split('-'); let created = new Date(cP[0], cP[1]-1, cP[2]); created.setHours(0,0,0,0);
-  
-  let checkDate = new Date(today); 
-  checkDate.setDate(checkDate.getDate() - 14); // Piche sirf 14 din tak jayega
-  if(checkDate < created) checkDate = new Date(created); // Ya phir habit banne wale din tak (jo bhi nazdeek ho)
+  let checkDate = new Date(today); checkDate.setDate(checkDate.getDate() - 14); 
+  if(checkDate < created) checkDate = new Date(created); 
   
   while(checkDate < today) {
     let y = checkDate.getFullYear(); let m = String(checkDate.getMonth()+1).padStart(2,'0'); let d = String(checkDate.getDate()).padStart(2,'0'); let dStr = `${y}-${m}-${d}`;
-    if(!h.logs.find(l => l.date === dStr)) {
-      missed.push(dStr);
-    }
+    if(!h.logs.find(l => l.date === dStr)) { missed.push(dStr); }
     checkDate.setDate(checkDate.getDate() + 1);
   }
-  return missed.slice(-5); // Unme se recent max 5 dates return karega
+  return missed.slice(-5); 
 }
 
 function renderToday(){
@@ -503,7 +468,14 @@ function renderToday(){
 
 function buildFormHTML(dateStr, isToday, h) {
   let title = isToday ? "1. Kya aaj yeh kiya?" : `<span style="color:var(--danger)">⚠️ You missed on (${fmtDateReadable(dateStr)})</span><br><span style="font-size:14px">1. Kya is din yeh kiya?</span>`; let borderStyle = !isToday ? 'border-left: 4px solid var(--danger);' : ''; 
-  return `<div class="card" style="${borderStyle}"><h2>${title}</h2><div class="log-btns"><button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','yes')">✅ Haan</button><button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','partial')">⚡ Thoda</button><button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','no')">❌ Nahi</button></div><div id="logDetails_${dateStr}" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;"><label>2. Reminder ke bina yaad aaya?</label><select id="tReminder_${dateStr}"><option value="no">Haan, automatic tha</option><option value="slight">Thoda sochna pada</option><option value="yes">Nahi, reminder dekhna pada</option></select><label>3. Effort level (1=easy, 10=hard)</label><input type="range" id="tEffort_${dateStr}" min="1" max="10" value="5" oninput="$('effortVal_${dateStr}').textContent=this.value"><div id="effortVal_${dateStr}" style="text-align:center;font-weight:900;color:var(--accent);font-size:18px">5</div><label>4. Us din ka context?</label><select id="tContext_${dateStr}"><option value="normal">🟢 Normal routine day</option><option value="weekend">🟡 Weekend / holiday</option><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option></select><label>5. Karne ke baad kaisa laga?</label><select id="tEnjoy_${dateStr}"><option value="5">😊 Bahut achha / energized</option><option value="4">🙂 Achha laga</option><option value="3">😐 Theek thak</option><option value="2">😕 Thoda boring</option><option value="1">😞 Acha nahi laga</option></select><label>Notes (optional)</label><textarea id="tNotes_${dateStr}" placeholder="Kuch special hua tha..."></textarea><button class="btn" style="margin-top:12px" onclick="saveDynamicLog('${dateStr}')">💾 ${isToday?'Aaj ka ':''}Log Save</button></div><div id="missedLogDetails_${dateStr}" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;"><label>2. Us din ka context? (Kyun miss hua?)</label><select id="tMissedContext_${dateStr}"><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option><option value="normal">🟢 Normal busy day / Bhool gaya</option></select><label>Notes (optional)</label><textarea id="tMissedNotes_${dateStr}" placeholder="Kyun miss hua..."></textarea><button class="btn" style="margin-top:12px;background:var(--danger);color:#fff;" onclick="saveDynamicLog('${dateStr}')">💾 Save Missed Log</button></div></div>`;
+  return `<div class="card" style="${borderStyle}"><h2>${title}</h2><div class="log-btns"><button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','yes')">✅ Haan</button><button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','partial')">⚡ Thoda</button><button class="log-btn perf-btn-${dateStr}" onclick="selectDynamicPerf(this,'${dateStr}','no')">❌ Nahi</button></div><div id="logDetails_${dateStr}" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;"><label>2. Reminder ke bina yaad aaya?</label><select id="tReminder_${dateStr}"><option value="no">Haan, automatic tha</option><option value="slight">Thoda sochna pada</option><option value="yes">Nahi, reminder dekhna pada</option></select><label>3. Effort level (1=easy, 10=hard)</label><input type="range" id="tEffort_${dateStr}" min="1" max="10" value="5" oninput="$('effortVal_${dateStr}').textContent=this.value"><div id="effortVal_${dateStr}" style="text-align:center;font-weight:900;color:var(--accent);font-size:18px">5</div><label>4. Us din ka context?</label><select id="tContext_${dateStr}"><option value="normal">🟢 Normal routine day</option><option value="weekend">🟡 Weekend / holiday</option><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option></select><label>5. Karne ke baad kaisa laga?</label><select id="tEnjoy_${dateStr}"><option value="5">😊 Bahut achha / energized</option><option value="4">🙂 Achha laga</option><option value="3">😐 Theek thak</option><option value="2">😕 Thoda boring</option><option value="1">😞 Acha nahi laga</option></select><label>Notes (optional)</label><textarea id="tNotes_${dateStr}" placeholder="Kuch special hua tha..."></textarea><button class="btn" style="margin-top:12px" onclick="saveDynamicLog('${dateStr}')">💾 ${isToday?'Aaj ka ':''}Log Save</button></div><div id="missedLogDetails_${dateStr}" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;"><label>2. Us din ka context? (Kyun miss hua?)</label><select id="tMissedContext_${dateStr}"><option value="travel">🔵 Travel / out of town</option><option value="illness">🔴 Illness / low energy</option><option value="stress">🟠 High stress / busy</option><option value="normal">🟢 Normal busy day / Bhool gaya</option></select><label>Notes (optional)</label><textarea id="tMissedNotes_${dateStr}" placeholder="Kyun miss hua..."></textarea><button class="btn" style="margin-top:12px;background:var(--danger);color:#fff;" onclick="saveDynamicLog('${dateStr}')">💾 Save Missed Log</button></div>
+  
+  <!-- 🤖 INVISIBLE HABIT EXPERT UI -->
+  <div id="aiCoachContainer_${dateStr}" class="ai-coach-card">
+    <div id="aiContent_${dateStr}"></div>
+  </div>
+  
+  </div>`;
 }
 
 function selectDynamicPerf(btn, dateStr, val){ window.formState[dateStr] = val; document.querySelectorAll(`.perf-btn-${dateStr}`).forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); if(val === 'no'){ $(`logDetails_${dateStr}`).classList.add('hidden'); $(`missedLogDetails_${dateStr}`).classList.remove('hidden'); } else { $(`logDetails_${dateStr}`).classList.remove('hidden'); $(`missedLogDetails_${dateStr}`).classList.add('hidden'); } }
@@ -514,19 +486,82 @@ function saveDynamicLog(dateStr){
   else { log = { date: dateStr, done: val==='yes', partial: val==='partial', reminder: $(`tReminder_${dateStr}`).value==='yes', effort: parseInt($(`tEffort_${dateStr}`).value), ctx: $(`tContext_${dateStr}`).value, enjoy: parseInt($(`tEnjoy_${dateStr}`).value), notes: $(`tNotes_${dateStr}`).value }; }
   
   h.logs = h.logs.filter(l => l.date !== dateStr); h.logs.push(log); saveData(); if(dateStr === todayStr()) window.editingToday = false; 
-
-  if(dateStr === todayStr() && val === 'yes') {
-    let streak = 0;
-    for(let i=0; i<=6; i++) {
-        let d = new Date(); d.setDate(d.getDate() - i);
-        let dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-        let l = h.logs.find(x => x.date === dStr);
-        if(l && l.done) streak++;
-    }
-    if(streak === 7) { showDopamineBadge(); return; }
-  }
   
-  toast(`✅ Log saved!`); renderToday(); 
+  if (val === 'no' || val === 'partial') {
+      let problemContext = val === 'no' ? $(`tMissedContext_${dateStr}`).value : $(`tContext_${dateStr}`).value;
+      // PRO TIP 1: Initial Ask Expert Button ko Double click se bachana
+      $(`aiCoachContainer_${dateStr}`).innerHTML = `<button class="btn btn-outline" style="border-color:var(--info-text); color:var(--info-text); background:transparent; font-size:13px; margin:0;" onclick="this.disabled=true; this.textContent='⏳ Loading...'; triggerAICoach('${dateStr}', '${problemContext}')">💡 Problem ho rahi hai? Ask Habit Expert</button>`;
+      $(`aiCoachContainer_${dateStr}`).classList.add('active');
+      toast(`✅ Log saved!`);
+  } else {
+      if(dateStr === todayStr()) {
+        let streak = 0;
+        for(let i=0; i<=6; i++) {
+            let d = new Date(); d.setDate(d.getDate() - i);
+            let dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+            let l = h.logs.find(x => x.date === dStr);
+            if(l && l.done) streak++;
+        }
+        if(streak === 7) { showDopamineBadge(); return; }
+      }
+      toast(`✅ Log saved!`);
+      renderToday(); 
+  }
+}
+
+// 🧠 HABIT EXPERT API INTEGRATION (With Pro-Level Timeout & Double-Click Prevention)
+async function triggerAICoach(dateStr, contextVal, userReply = "") {
+    const h = getActive(); if(!h) return;
+    const container = $(`aiCoachContainer_${dateStr}`);
+    
+    // Disable any existing input/button before loading to prevent double actions
+    let inputEl = $(`aiInput_${dateStr}`);
+    if(inputEl) inputEl.disabled = true;
+
+    // Show Loading State (Habit Expert)
+    container.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; gap:10px;"><div class="spinner" style="width:20px;height:20px;border-width:3px;margin:0;"></div><div style="font-size:13px; font-weight:600; color:var(--info-text);">🧠 Habit Expert analyze kar raha hai...</div></div>`;
+    container.classList.add('active');
+
+    // PRO TIP 2: 12 Second Timeout Logic (AbortController)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000); 
+
+    try {
+        const res = await fetch("https://eof4nbrarxxwjee.m.pipedream.net/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ habitName: h.name, context: contextVal, userReply: userReply }),
+            signal: controller.signal // Signal attached for timeout
+        });
+        clearTimeout(timeoutId); // Success, clear the timeout bomb
+        
+        const data = await res.json();
+        let html = `<div style="display:flex; gap:10px; margin-bottom:12px;"><div style="font-size:24px;">🧠</div><div class="ai-msg">${escapeHTML(data.message)}</div></div>`;
+
+        if(data.options && data.options.length > 0) {
+            html += `<div class="btn-group" style="margin-bottom:12px;">`;
+            data.options.forEach(opt => {
+                // PRO TIP 1: Disable Option Button on Click
+                html += `<button class="btn btn-sm opt-btn-${dateStr}" style="background:#fff; border:1px solid var(--info-border); color:var(--info-text); box-shadow:0 1px 2px rgba(0,0,0,0.05);" onclick="document.querySelectorAll('.opt-btn-${dateStr}').forEach(b=>b.disabled=true); triggerAICoach('${dateStr}', '${contextVal}', '${escapeHTML(opt)}')">${escapeHTML(opt)}</button>`;
+            });
+            html += `</div>`;
+        }
+
+        // PRO TIP 1: Disable Input and Send Button on Click/Enter
+        html += `<div class="ai-input-row">
+                    <input type="text" id="aiInput_${dateStr}" placeholder="Apni problem likhein..." onkeypress="if(event.key==='Enter'){ this.disabled=true; $('aiBtn_${dateStr}').disabled=true; triggerAICoach('${dateStr}','${contextVal}',this.value); }">
+                    <button id="aiBtn_${dateStr}" class="btn btn-sm" style="background:var(--info-text); color:#fff; margin:0;" onclick="this.disabled=true; $('aiInput_${dateStr}').disabled=true; triggerAICoach('${dateStr}','${contextVal}',$('aiInput_${dateStr}').value)">Bhejein</button>
+                 </div>`;
+
+        container.innerHTML = html;
+    } catch (e) {
+        clearTimeout(timeoutId);
+        if (e.name === 'AbortError') {
+            container.innerHTML = `<div style="color:var(--danger); font-size:13px; text-align:center;">⚠️ Request Timeout: Network slow hai. Kripya phir se try karein.</div>`;
+        } else {
+            container.innerHTML = `<div style="color:var(--danger); font-size:13px; text-align:center;">⚠️ Internet connection check karein.</div>`;
+        }
+    }
 }
 
 function showDopamineBadge() {
@@ -578,4 +613,3 @@ function importData(input){ var reader = new FileReader(); reader.onload = funct
 </script>
 </body>
 </html>
-
