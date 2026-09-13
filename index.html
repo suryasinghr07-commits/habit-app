@@ -510,7 +510,7 @@ function saveDynamicLog(dateStr){
   }
 }
 
-// 🐛 BACK TO PIPEDREAM (Safe Backend Call with Cache Buster)
+// 🐛 SMART ERROR HANDLING: Ab app real error batayega!
 async function triggerAICoach(dateStr, contextVal, userReply = "") {
     const h = getActive(); if(!h) return;
     const container = $(`aiCoachContainer_${dateStr}`);
@@ -533,15 +533,14 @@ async function triggerAICoach(dateStr, contextVal, userReply = "") {
         });
         clearTimeout(timeoutId); 
         
-        if (!res.ok) {
-             throw new Error("Pipedream se response fail hua.");
-        }
+        // Pipedream se aaye response ko padhna (chahe fail ho ya pass)
+        let dataRaw = await res.text();
+        let data = {};
+        try { data = JSON.parse(dataRaw); } catch(e) {}
 
-        const data = await res.json();
-        
-        // Agar Pipedream ne 500 error ka custom JSON bheja hai
-        if (data.error) {
-             throw new Error(data.error);
+        if (!res.ok) {
+             // Ab Pipedream ka asli error data.error mein hoga
+             throw new Error(data.error || `Server Error: HTTP ${res.status}`);
         }
 
         let html = `<div style="display:flex; gap:10px; margin-bottom:12px;"><div style="font-size:24px;">🧠</div><div class="ai-msg">${escapeHTML(data.message)}</div></div>`;
@@ -566,8 +565,8 @@ async function triggerAICoach(dateStr, contextVal, userReply = "") {
         if (e.name === 'AbortError') {
             container.innerHTML = `<div style="color:var(--danger); font-size:13px; text-align:center;">⚠️ Timeout: Network slow hai. Kripya phir se try karein.</div>`;
         } else {
-            // Naya Error Message (Is se pata chalega naya code load hua ya nahi)
-            container.innerHTML = `<div style="color:var(--danger); font-size:12px; text-align:center; line-height: 1.4;">⚠️ <strong>Pipedream Connection Error!</strong><br>Pipedream ka setup check karein: ${escapeHTML(e.message)}</div>`;
+            // YAHAN PAR ASLI ERROR DIKHEGA!
+            container.innerHTML = `<div style="color:var(--danger); font-size:12px; text-align:center; line-height: 1.4;">⚠️ <strong>Pipedream Connection Error!</strong><br>Pipedream se error aaya hai: <br><strong style="color:black">${escapeHTML(e.message)}</strong></div>`;
         }
     }
 }
