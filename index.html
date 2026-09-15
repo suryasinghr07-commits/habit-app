@@ -96,13 +96,24 @@
   .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
   .info-box{background:var(--info-bg);border:1.5px solid var(--info-border);color:var(--info-text);border-radius:10px;padding:12px;font-size:13px;margin:10px 0;transition:0.3s ease;} .warn-box{background:var(--warn-bg);border:1.5px solid var(--warn-border);color:var(--warn-text);border-radius:10px;padding:12px;font-size:13px;margin:10px 0;transition:0.3s ease;} .divider{height:1px;background:var(--border);margin:14px 0}
   
-  /* 🤖 Habit Expert Card UI */
-  .ai-coach-card { background: var(--info-bg); border: 1.5px solid var(--info-border); border-radius: 12px; padding: 14px; margin-top: 14px; animation: fadeIn 0.4s ease; display: none; }
-  .ai-coach-card.active { display: block; }
-  .ai-msg { font-size: 13.5px; color: var(--info-text); font-weight: 600; line-height: 1.5; margin-bottom: 10px; }
-  .ai-input-row { display: flex; gap: 8px; margin-top: 10px; }
-  .ai-input-row input { flex: 1; padding: 8px 12px; font-size: 13px; border-radius: 8px; border: 1.5px solid var(--info-border); }
-  .ai-input-row input:disabled, .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  /* 🎨 MODERN CHAT UI FOR HABIT EXPERT */
+  .ai-coach-card { background: transparent; border: none; padding: 0; margin-top: 16px; animation: fadeIn 0.4s ease; display: none; flex-direction: column; gap: 12px; }
+  .ai-coach-card.active { display: flex; }
+  .ai-chat-bubble { background: var(--card); border: 1.5px solid var(--border); border-radius: 18px 18px 18px 4px; padding: 14px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); position: relative; max-width: 90%; }
+  [data-theme="dark"] .ai-chat-bubble { background: #1e293b; border-color: #334155; }
+  .ai-msg { font-size: 14px; color: var(--text); font-weight: 500; line-height: 1.6; }
+  .ai-msg strong { color: var(--primary); font-weight: 800; }
+  
+  .ai-options-wrapper { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; justify-content: flex-end; width: 100%; }
+  .opt-btn { background: var(--primary-light); color: var(--primary); border: 1.5px solid transparent; border-radius: 20px; padding: 10px 16px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+  .opt-btn:active, .opt-btn:hover { border-color: var(--primary); filter: brightness(0.95); }
+  
+  .ai-input-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; background: var(--card); padding: 6px; border-radius: 24px; border: 1.5px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+  .ai-input-row input { flex: 1; border: none; background: transparent; padding: 8px 12px; font-size: 14px; outline: none; color: var(--text); }
+  .ai-send-btn { background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s ease; outline: none; flex-shrink: 0; }
+  .ai-send-btn:active { transform: scale(0.9); }
+  .ai-send-btn svg { width: 18px; height: 18px; }
+  .ai-send-btn:disabled, .opt-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -491,7 +502,7 @@ function saveDynamicLog(dateStr){
   
   if (val === 'no' || val === 'partial') {
       let problemContext = val === 'no' ? $(`tMissedContext_${dateStr}`).value : $(`tContext_${dateStr}`).value;
-      $(`aiCoachContainer_${dateStr}`).innerHTML = `<button class="btn btn-outline" style="border-color:var(--info-text); color:var(--info-text); background:transparent; font-size:13px; margin:0;" onclick="this.disabled=true; this.textContent='⏳ Loading...'; triggerAICoach('${dateStr}', '${problemContext}')">💡 Problem ho rahi hai? Ask Habit Expert</button>`;
+      $(`aiCoachContainer_${dateStr}`).innerHTML = `<button class="btn btn-outline" style="border-color:var(--info-text); color:var(--info-text); background:transparent; font-size:13px; margin:0;" onclick="this.disabled=true; this.innerHTML='<div class=\\'spinner\\' style=\\'width:16px;height:16px;border-width:2px;margin:0;display:inline-block;vertical-align:middle;\\'></div> Loading...'; triggerAICoach('${dateStr}', '${problemContext}')">💡 Problem ho rahi hai? Ask Habit Expert</button>`;
       $(`aiCoachContainer_${dateStr}`).classList.add('active');
       toast(`✅ Log saved!`);
   } else {
@@ -510,7 +521,7 @@ function saveDynamicLog(dateStr){
   }
 }
 
-// 🐛 SMART ERROR HANDLING: Ab app real error batayega!
+// 🐛 SMART ERROR HANDLING & CHAT UI
 async function triggerAICoach(dateStr, contextVal, userReply = "") {
     const h = getActive(); if(!h) return;
     const container = $(`aiCoachContainer_${dateStr}`);
@@ -518,7 +529,7 @@ async function triggerAICoach(dateStr, contextVal, userReply = "") {
     let inputEl = $(`aiInput_${dateStr}`);
     if(inputEl) inputEl.disabled = true;
 
-    container.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; gap:10px;"><div class="spinner" style="width:20px;height:20px;border-width:3px;margin:0;"></div><div style="font-size:13px; font-weight:600; color:var(--info-text);">🧠 Habit Expert analyze kar raha hai...</div></div>`;
+    container.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; gap:10px;"><div class="spinner" style="width:20px;height:20px;border-width:3px;margin:0;"></div><div style="font-size:13px; font-weight:600; color:var(--info-text);">🧠 Habit Expert soch raha hai...</div></div>`;
     container.classList.add('active');
 
     const controller = new AbortController();
@@ -533,29 +544,38 @@ async function triggerAICoach(dateStr, contextVal, userReply = "") {
         });
         clearTimeout(timeoutId); 
         
-        // Pipedream se aaye response ko padhna (chahe fail ho ya pass)
         let dataRaw = await res.text();
         let data = {};
         try { data = JSON.parse(dataRaw); } catch(e) {}
 
         if (!res.ok) {
-             // Ab Pipedream ka asli error data.error mein hoga
              throw new Error(data.error || `Server Error: HTTP ${res.status}`);
         }
 
-        let html = `<div style="display:flex; gap:10px; margin-bottom:12px;"><div style="font-size:24px;">🧠</div><div class="ai-msg">${escapeHTML(data.message)}</div></div>`;
+        // Apply bolding properly before injecting into HTML
+        let safeMessage = escapeHTML(data.message).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        let html = `
+        <div style="display:flex; gap:12px; margin-bottom:8px;">
+            <div style="font-size:28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">🧠</div>
+            <div class="ai-chat-bubble">
+                <div class="ai-msg">${safeMessage}</div>
+            </div>
+        </div>`;
 
         if(data.options && data.options.length > 0) {
-            html += `<div class="btn-group" style="margin-bottom:12px;">`;
+            html += `<div class="ai-options-wrapper">`;
             data.options.forEach(opt => {
-                html += `<button class="btn btn-sm opt-btn-${dateStr}" style="background:#fff; border:1px solid var(--info-border); color:var(--info-text); box-shadow:0 1px 2px rgba(0,0,0,0.05);" onclick="document.querySelectorAll('.opt-btn-${dateStr}').forEach(b=>b.disabled=true); triggerAICoach('${dateStr}', '${contextVal}', '${escapeHTML(opt)}')">${escapeHTML(opt)}</button>`;
+                html += `<button class="opt-btn opt-btn-${dateStr}" onclick="document.querySelectorAll('.opt-btn-${dateStr}').forEach(b=>b.disabled=true); triggerAICoach('${dateStr}', '${contextVal}', '${escapeHTML(opt)}')">${escapeHTML(opt)}</button>`;
             });
             html += `</div>`;
         }
 
         html += `<div class="ai-input-row">
                     <input type="text" id="aiInput_${dateStr}" placeholder="Apni problem likhein..." onkeypress="if(event.key==='Enter'){ this.disabled=true; $('aiBtn_${dateStr}').disabled=true; triggerAICoach('${dateStr}','${contextVal}',this.value); }">
-                    <button id="aiBtn_${dateStr}" class="btn btn-sm" style="background:var(--info-text); color:#fff; margin:0;" onclick="this.disabled=true; $('aiInput_${dateStr}').disabled=true; triggerAICoach('${dateStr}','${contextVal}',$('aiInput_${dateStr}').value)">Bhejein</button>
+                    <button class="ai-send-btn" id="aiBtn_${dateStr}" onclick="this.disabled=true; $('aiInput_${dateStr}').disabled=true; triggerAICoach('${dateStr}','${contextVal}',$('aiInput_${dateStr}').value)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
                  </div>`;
 
         container.innerHTML = html;
@@ -565,8 +585,7 @@ async function triggerAICoach(dateStr, contextVal, userReply = "") {
         if (e.name === 'AbortError') {
             container.innerHTML = `<div style="color:var(--danger); font-size:13px; text-align:center;">⚠️ Timeout: Network slow hai. Kripya phir se try karein.</div>`;
         } else {
-            // YAHAN PAR ASLI ERROR DIKHEGA!
-            container.innerHTML = `<div style="color:var(--danger); font-size:12px; text-align:center; line-height: 1.4;">⚠️ <strong>Pipedream Connection Error!</strong><br>Pipedream se error aaya hai: <br><strong style="color:black">${escapeHTML(e.message)}</strong></div>`;
+            container.innerHTML = `<div style="color:var(--danger); font-size:12px; text-align:center; line-height: 1.4;">⚠️ <strong>Connection Error!</strong><br><br><strong style="color:var(--text)">${escapeHTML(e.message)}</strong></div>`;
         }
     }
 }
